@@ -1,10 +1,23 @@
+import { ConfigProvider } from 'antd'
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
-import './index.css'
 import App from './App.tsx'
+import './index.css'
+import { colors } from './theme/colors.ts'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <App />
+    <ConfigProvider
+      theme={{
+        token: {
+          colorPrimary: colors.primary,
+          colorPrimaryBgHover: colors.primaryLighter,
+          colorPrimaryBorder: colors.primaryLight,
+          fontFamily: "'Fredoka', sans-serif"
+        },
+      }}
+    >
+      <App />
+    </ConfigProvider>
   </StrictMode>,
 )
