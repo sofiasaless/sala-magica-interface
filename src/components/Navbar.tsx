@@ -28,16 +28,13 @@ const items: TabsProps['items'] = [
 ];
 
 export const Navbar = () => {
-  // const [current, setCurrent] = useState('inicio');
 
   return (
     <Container
       justifyContent="space-between"
       alignItems="center"
-      paddingHorizontal={15}
       paddingVertical={0.5}
     >
-
       <Image
         preview={false}
         width={120}

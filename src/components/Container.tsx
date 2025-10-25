@@ -1,5 +1,6 @@
 import type React from "react";
 import type { ReactNode } from "react";
+import { colors } from "../theme/colors";
 
 type JustifyContent = 'flex-start' | 'flex-end' | 'center' | 'space-between' | 'space-around' | 'space-evenly';
 type AlignItems = 'flex-start' | 'flex-end' | 'center' | 'baseline' | 'stretch';
@@ -9,20 +10,37 @@ export const Container: React.FC<{
   justifyContent?: JustifyContent,
   alignItems?: AlignItems,
   paddingHorizontal?: number
-  paddingVertical?: number
-}> = ({ children, justifyContent, alignItems, paddingHorizontal, paddingVertical }) => {
-  return (
-    <div
-      style={{
-        display: 'flex',
-        width: '100%',
-        justifyContent: justifyContent,
-        alignItems: alignItems,
-        paddingInline: `${paddingHorizontal}%`,
-        paddingBlock: `${paddingVertical}rem`,
-      }}
-    >
-      {children}
-    </div>
-  )
-}
+  paddingVertical?: number,
+  backgroundColor?: string,
+  flexDirection?: 'column' | 'row',
+  gap?: number
+}> =
+  ({
+    children,
+    justifyContent,
+    alignItems,
+    paddingHorizontal = 15,
+    paddingVertical,
+    backgroundColor = colors.backgroundMain,
+    flexDirection = 'row',
+    gap = 0,
+  }) => {
+
+    return (
+      <div
+        style={{
+          display: 'flex',
+          flexDirection: flexDirection,
+          backgroundColor: backgroundColor,
+          width: '100%',
+          justifyContent: justifyContent,
+          alignItems: alignItems,
+          paddingInline: `${paddingHorizontal}%`,
+          paddingBlock: `${paddingVertical}rem`,
+          gap: gap
+        }}
+      >
+        {children}
+      </div>
+    )
+  }
