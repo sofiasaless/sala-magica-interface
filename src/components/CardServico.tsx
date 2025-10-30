@@ -6,16 +6,18 @@ import { font } from "../theme/font";
 
 const { Title, Paragraph } = Typography;
 
-interface CardServicoProps {
+export interface ServicoType {
   titulo: string,
   icone: ReactNode,
   descricao: string
 }
 
-export const CardServico: React.FC<CardServicoProps> = ({ titulo, icone, descricao }) => {
+export const CardServico: React.FC<{
+  servico: ServicoType
+}> = ({ servico }) => {
   return (
     <Card
-      title={icone}
+      title={servico.icone}
       variant="borderless"
       style={{
         width: 300,
@@ -34,8 +36,8 @@ export const CardServico: React.FC<CardServicoProps> = ({ titulo, icone, descric
         }
       }}
     >
-      <Title level={4} style={{ textAlign: 'center', color: colors.secondary }}>{titulo}</Title>
-      <Paragraph style={{ textAlign: 'center', fontSize: font.h5 }}>{descricao}</Paragraph>
+      <Title level={4} style={{ textAlign: 'center', color: colors.secondary }}>{servico.titulo}</Title>
+      <Paragraph style={{ textAlign: 'center', fontSize: font.h5 }}>{servico.descricao}</Paragraph>
     </Card>
   )
 }

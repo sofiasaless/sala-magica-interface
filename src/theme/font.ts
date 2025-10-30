@@ -7,3 +7,5 @@ export const font = {
   body: 14, // texto normal
   small: 12 // observações, legendas
 } as const;
+
+export type AppFontSize = typeof font;

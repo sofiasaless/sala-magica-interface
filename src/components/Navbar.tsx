@@ -1,5 +1,5 @@
 import { AppstoreFilled, BellOutlined, HeartFilled, HomeFilled, ShoppingCartOutlined, SmileFilled } from "@ant-design/icons";
-import { Badge, Flex, Image, Tabs, type TabsProps } from "antd";
+import { Badge, Button, Flex, Image, Tabs, type TabsProps } from "antd";
 import logo from '../assets/icone reverso.png';
 import { colors } from "../theme/colors";
 import { Container } from "./Container";
@@ -34,6 +34,7 @@ export const Navbar = () => {
       justifyContent="space-between"
       alignItems="center"
       paddingVertical={0.5}
+      // position="fixed"
     >
       <Image
         preview={false}
@@ -50,21 +51,15 @@ export const Navbar = () => {
       />
 
       <Flex
-        gap="large"
-        style={{
-          paddingRight: 15
-        }}
+        gap="middle"
       >
         <Badge count={2} color="#ff4d4f">
-          <ShoppingCartOutlined
-            style={{ fontSize: 22, color: colors.primary, cursor: "pointer" }}
-          />
+          <Button type="default" shape="circle" icon={<ShoppingCartOutlined style={{ color: colors.primary, fontSize: 22 }} />} size={"large"} />
         </Badge>
 
         <Badge count={9} color="#ff4d4f">
-          <BellOutlined
-            style={{ fontSize: 22, color: colors.primary, cursor: "pointer" }}
-          />
+          <Button type="default" shape="circle" icon={<BellOutlined style={{ color: colors.primary, fontSize: 22 }} />} size={"large"}/>
+
         </Badge>
       </Flex>
     </Container>

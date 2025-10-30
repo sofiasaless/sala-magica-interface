@@ -13,17 +13,20 @@ export const Container: React.FC<{
   paddingVertical?: number,
   backgroundColor?: string,
   flexDirection?: 'column' | 'row',
-  gap?: number
+  gap?: number,
+  heigth?: number | string,
+  position?: 'static' | 'relative' | 'absolute' | 'sticky' | 'fixed' | undefined
 }> =
   ({
     children,
     justifyContent,
     alignItems,
     paddingHorizontal = 15,
-    paddingVertical,
+    paddingVertical = 5,
     backgroundColor = colors.backgroundMain,
     flexDirection = 'row',
     gap = 0,
+    heigth = 'auto'
   }) => {
 
     return (
@@ -33,11 +36,12 @@ export const Container: React.FC<{
           flexDirection: flexDirection,
           backgroundColor: backgroundColor,
           width: '100%',
+          height: heigth,
           justifyContent: justifyContent,
           alignItems: alignItems,
           paddingInline: `${paddingHorizontal}%`,
           paddingBlock: `${paddingVertical}rem`,
-          gap: gap
+          gap: gap,
         }}
       >
         {children}
