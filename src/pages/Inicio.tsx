@@ -7,6 +7,7 @@ import { Divisor } from "../components/Divisor";
 import { colors } from "../theme/colors";
 import { CardProduto } from "../components/CardProduto";
 import FormularioEncomenda from "../components/FormularioEncomenda";
+import { SiteFooter } from "../components/SiteFooter";
 
 const { Title } = Typography;
 
@@ -129,6 +130,8 @@ export const Inicio = () => {
         />
         <FormularioEncomenda />
       </Container>
+
+      <SiteFooter />
     </>
   )
 }
