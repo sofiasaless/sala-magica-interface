@@ -13,7 +13,6 @@ export const Produtos = () => {
   useEffect(() => {
     carregarTotalProdutos()
     paginar()
-    console.info(produtosPaginados?.get('')?.produtos)
   }, [])
 
   return (
