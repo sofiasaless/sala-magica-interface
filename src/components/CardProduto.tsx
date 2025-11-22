@@ -15,7 +15,7 @@ export const CardProduto: React.FC<{ produto: Produto }> = ( {produto} ) => {
         <img
           draggable={false}
           alt="example"
-          src={produto.imagemCapa}
+          src={(produto.imagemCapa)?produto.imagemCapa:'https://picsum.photos/200/300'}
         />
       }
       actions={[

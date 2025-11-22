@@ -32,11 +32,11 @@ const servicoes_prestados: ServicoType[] = [
 
 export const Inicio = () => {
 
-  const { produtosPaginados, paginar } = useProdutos()
+  const { produtosPaginados, paginarFiltrado } = useProdutos()
   
   useEffect(() => {
-    paginar({limite: 4, categoria: "Enfeites de parede", ordem: "dataAnuncio"}, "enfeites")
-    paginar({limite: 4, categoria: "Materiais educativos", ordem: "dataAnuncio"}, "educativo")
+    paginarFiltrado({limite: 4, categoria: "Enfeites de parede", ordem: "dataAnuncio"}, "enfeites")
+    paginarFiltrado({limite: 4, categoria: "Materiais educativos", ordem: "dataAnuncio"}, "educativo")
   }, [])
 
   return (
@@ -89,7 +89,7 @@ export const Inicio = () => {
         />
 
         <Flex gap={"large"}>
-          {produtosPaginados?.get('enfeites')?.map((produto, indice) => (
+          {produtosPaginados?.get('enfeites')?.produtos.map((produto, indice) => (
             <CardProduto key={indice} produto={produto} />
           ))}
         </Flex>
@@ -105,7 +105,7 @@ export const Inicio = () => {
         />
 
         <Flex gap={"large"}>
-          {produtosPaginados?.get('educativo')?.map((produto, indice) => (
+          {produtosPaginados?.get('educativo')?.produtos.map((produto, indice) => (
             <CardProduto key={indice} produto={produto} />
           ))}
         </Flex>

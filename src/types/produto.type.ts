@@ -15,6 +15,6 @@ export type Produto = {
 
 export type PageProductResponse = {
   produtos: Produto[],
-  lastVisible: string,
-  total: number
+  nextCursor: string,
+  prevCursor: string
 }
