@@ -1,20 +1,14 @@
 import { AppstoreFilled, BellOutlined, HeartFilled, HomeFilled, ShoppingCartOutlined, SmileFilled } from "@ant-design/icons";
 import { Badge, Button, Flex, Image, Tabs, type TabsProps } from "antd";
-import { useState } from "react";
+import React, { useEffect, useState } from "react";
+import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import logo from '../assets/icone reverso.png';
-import { Inicio } from "../pages/Inicio";
 import { colors } from "../theme/colors";
 import { Container } from "./Container";
-import { Produtos } from "../pages/Produtos";
-import { Favoritos } from "../pages/Favoritos";
-import { Perfil } from "../pages/Perfil";
-import { Carrinho } from "../pages/Carrinho";
-import {Notificacoes} from "../pages/Notificacoes";
-import { DetalheProduto } from "../pages/DetalheProduto";
 
 const items: TabsProps['items'] = [
   {
-    key: 'inicio',
+    key: '',
     label: 'Início',
     icon: <HomeFilled />
   },
@@ -35,9 +29,23 @@ const items: TabsProps['items'] = [
   },
 ];
 
-export const Navbar = () => {
+export const Navbar: React.FC<{
+  paginaAtiva?: string
+}> = ( {paginaAtiva = ''} ) => {
 
-  const [activeKey, setActiveKey] = useState<string>("inicio");
+  const [activeKey, setActiveKey] = useState<string>(paginaAtiva);
+
+  const navigator = useNavigate()
+  
+  const location = useLocation()
+
+  useEffect(() => {
+    if (location.pathname.startsWith('/produto/')) {
+      setActiveKey('...')
+    } else {
+      setActiveKey(location.pathname.substring(1, location.pathname.length))
+    }
+  }, [location.pathname])
 
   return (
     <>
@@ -54,9 +62,12 @@ export const Navbar = () => {
 
         <Tabs
           activeKey={activeKey}
-          onChange={setActiveKey}
+          onChange={async (e) => {
+            setActiveKey(e)
+            await navigator(`/${e}`)
+          }}
           size="middle"
-          defaultActiveKey={'inicio'}
+          defaultActiveKey={''}
           destroyOnHidden
           items={items}
         />
@@ -87,13 +98,7 @@ export const Navbar = () => {
         alignItems="center"
         justifyContent="center"
       >
-        {activeKey === "inicio" && <Inicio />}
-        {activeKey === "produtos" && <Produtos />}
-        {activeKey === "favoritos" && <Favoritos />}
-        {activeKey === "perfil" && <Perfil />}
-        {activeKey === "carrinho" && <Carrinho />}
-        {/* {activeKey === "notificacoes" && <Notificacoes />} */}
-        {activeKey === "notificacoes" && <DetalheProduto />}
+        <Outlet />
       </Container>
     </>
   )

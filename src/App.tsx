@@ -1,10 +1,8 @@
-import Layout from './layouts/Layout'
+import Rotas from './router'
 
 function App() {
 
-  return (
-    <Layout />
-  )
+  return <Rotas />
 }
 
 export default App
