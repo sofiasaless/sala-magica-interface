@@ -4,7 +4,7 @@ import { Flex, Pagination } from "antd";
 import { useEffect, useState } from "react";
 import { AreaPesquisaProdutos } from "../components/AreaPesquisaProdutos";
 import { CardProduto } from "../components/CardProduto";
-import { useProdutos } from "../hooks/useProdutos";
+import { useProdutos } from "../hooks/useProdutosPaginados";
 
 export const Produtos = () => {
   const { produtosPaginados, paginar, totalProdutos, carregarTotalProdutos } = useProdutos()

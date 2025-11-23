@@ -7,7 +7,8 @@ import { Divisor } from "../components/Divisor";
 import { CardProduto } from "../components/CardProduto";
 import { useNavigate, useParams } from "react-router-dom";
 import { useEffect } from "react";
-import { useProdutos } from "../hooks/useProdutos";
+import { useProdutosGeral } from "../hooks/useProdutosGeral";
+import { useProdutosPaginados } from "../hooks/useProdutosPaginados";
 
 const { Text } = Typography;
 
@@ -17,7 +18,8 @@ export const DetalheProduto = () => {
 
   const navigator = useNavigate()
 
-  const { produto, buscarProduto, produtosPaginados, paginar, carregando } = useProdutos()
+  const { produto, buscarProduto, carregandoProdutos } = useProdutosGeral()
+  const { produtosPaginados, paginar, carregandoPaginados } = useProdutosPaginados();
 
   useEffect(() => {
     if (id) buscarProduto(id)
@@ -32,7 +34,7 @@ export const DetalheProduto = () => {
   return (
     <>
       <Container
-        carregando={carregando}
+        carregando={carregandoProdutos}
         backgroundColor={colors.primaryLighter}
         flexDirection="column"
         paddingVertical={1.5}
@@ -117,6 +119,7 @@ export const DetalheProduto = () => {
       </Container>
 
       <Container
+        carregando={carregandoPaginados}
         paddingVertical={3}
         flexDirection="column"
         gap={30}
