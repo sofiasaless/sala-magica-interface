@@ -10,7 +10,7 @@ export interface PaginacaoProps {
   }, 
   filtro?: {
     categoria: string,
-    ordem: string
+    ordem?: string
   }
 }
 
@@ -23,7 +23,7 @@ export const produtosApi = {
     let filtragem = ''
     if (page.filtro) {
       if (page.filtro.categoria != '') filtragem += `&categoria=${page.filtro.categoria}`
-      if (page.filtro.ordem != '') filtragem += `&ordem=${page.filtro.ordem}`
+      if (page.filtro.ordem != '' &&  page.filtro.ordem != undefined) filtragem += `&ordem=${page.filtro.ordem}`
     }
 
     // console.info('requisição indo a api ----> ', `/products/page?limit=${page.limit}${filtragem}${paginacao}`)

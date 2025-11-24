@@ -1,33 +1,8 @@
 import { Badge, Button, ConfigProvider, Descriptions, Form, Space, Switch, Table, Tabs, Tag, type DescriptionsProps, type TableProps, type TabsProps } from "antd";
+import { Link } from "react-router-dom";
 import { Container } from "../components/Container";
+import { useAuthUser } from "../hooks/useAuthUser";
 import { colors } from "../theme/colors";
-
-const itemsDados: DescriptionsProps['items'] = [
-  {
-    key: '1',
-    label: 'Nome',
-    children: 'Sofia Sales',
-    span: 3
-  },
-  {
-    key: '2',
-    label: 'Telefone',
-    children: '+55 (85) 98743-3212',
-    span: 3
-  },
-  {
-    key: '3',
-    label: 'E-mail',
-    children: 'sofiasaleswk@gmail.com',
-    span: 3
-  },
-  {
-    key: '6',
-    label: 'Ativo desde',
-    children: <Badge status="processing" text="20 de setembro de 2025" />,
-    span: 3,
-  }
-];
 
 interface DataType {
   key: string;
@@ -137,26 +112,61 @@ const FormConfiguracoes = () => {
 }
 
 
-const items: TabsProps['items'] = [
-  {
-    key: '1',
-    label: 'Meus dados',
-    children: <Descriptions bordered items={itemsDados} extra={<Button type="primary">Editar dados</Button>} />,
-  },
-  {
-    key: '2',
-    label: 'Minhas encomendas',
-    children: <Table<DataType> columns={columns} dataSource={data} pagination={false}/>,
-  },
-  {
-    key: '3',
-    label: 'Configurações',
-    children: <FormConfiguracoes />,
-  },
-];
 
 
 export const Perfil = () => {
+
+  const { usuario, isAutenticado, desconectarUsuario } = useAuthUser()
+
+  const itemsDados: DescriptionsProps['items'] = [
+    {
+      key: '1',
+      label: 'Nome',
+      children: usuario?.displayName,
+      span: 3
+    },
+    {
+      key: '2',
+      label: 'Telefone',
+      children: (usuario?.phoneNumber === null || usuario?.phoneNumber === undefined)?'Não informado':usuario.phoneNumber,
+      span: 3
+    },
+    {
+      key: '3',
+      label: 'E-mail',
+      children: usuario?.email,
+      span: 3
+    },
+    {
+      key: '6',
+      label: 'Ativo desde',
+      children: <Badge status="processing" text="20 de setembro de 2025" />,
+      span: 3,
+    }
+  ];
+
+  const items: TabsProps['items'] = [
+    {
+      key: '1',
+      label: 'Meus dados',
+      // children: <Descriptions bordered items={itemsDados} extra={<Button type="primary">Editar dados</Button>} />,
+      children: <Descriptions bordered items={itemsDados} extra={<Button onClick={() => {
+        desconectarUsuario()
+        window.location.reload()
+      }} type="primary">Sair</Button>} />,
+    },
+    {
+      key: '2',
+      label: 'Minhas encomendas',
+      children: <Table<DataType> columns={columns} dataSource={data} pagination={false} />,
+    },
+    {
+      key: '3',
+      label: 'Configurações',
+      children: <FormConfiguracoes />,
+    },
+  ];
+
   return (
     <>
       <Container
@@ -175,12 +185,18 @@ export const Perfil = () => {
             },
           }}
         >
-
-          <Tabs
-            defaultActiveKey="1"
-            centered
-            items={items}
-          />
+          {
+            (isAutenticado)?
+            <Tabs
+              defaultActiveKey="1"
+              centered
+              items={items}
+            />
+            :
+            <Link to={'/entrar'}>
+              <Button>Fazer login</Button>
+            </Link>
+          }
         </ConfigProvider>
       </Container>
     </>

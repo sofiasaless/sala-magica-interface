@@ -8,8 +8,8 @@ import { CardProduto } from "../components/CardProduto";
 import { CardServico, type ServicoType } from "../components/CardServico";
 import { Divisor } from "../components/Divisor";
 import FormularioEncomenda from "../components/FormularioEncomenda";
-import { useProdutos } from "../hooks/useProdutos";
 import { colors } from "../theme/colors";
+import { useProdutosPaginados } from "../hooks/useProdutosPaginados";
 
 
 const servicoes_prestados: ServicoType[] = [
@@ -32,11 +32,27 @@ const servicoes_prestados: ServicoType[] = [
 
 export const Inicio = () => {
 
-  const { produtosPaginados, paginarFiltrado } = useProdutos()
+  const { produtosPaginados, paginar } = useProdutosPaginados()
   
   useEffect(() => {
-    paginarFiltrado({limite: 4, categoria: "Enfeites de parede", ordem: "dataAnuncio"}, "enfeites")
-    paginarFiltrado({limite: 4, categoria: "Materiais educativos", ordem: "dataAnuncio"}, "educativo")
+    paginar({
+      limit: 4,
+      params: {
+        navigation: 'first'
+      },
+      filtro: {
+        categoria: "Enfeites de parede"
+      }
+    }, 'enfeites')
+    paginar({
+      limit: 4,
+      params: {
+        navigation: 'first'
+      },
+      filtro: {
+        categoria: "Materiais educativos"
+      }
+    }, 'educativo')
   }, [])
 
   return (
