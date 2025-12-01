@@ -1,10 +1,15 @@
 import { Container } from "../components/Container";
 
-import { Flex, Pagination } from "antd";
+import { LoadingOutlined } from "@ant-design/icons";
+import { Flex, Pagination, Spin } from "antd";
 import { CardProduto } from "../components/CardProduto";
 import { Divisor } from "../components/Divisor";
+import { useProdutosFavoritos } from "../contexts/ProdutosFavoritosContext";
 
 export const Favoritos = () => {
+  
+  const { carregandoFavoritos, produtosFavoritos } = useProdutosFavoritos();
+  
   return (
     <>
       <Container
@@ -21,18 +26,14 @@ export const Favoritos = () => {
           wrap
           justify="center"
         >
-          <CardProduto />
-          <CardProduto />
-          <CardProduto />
-          <CardProduto />
-          <CardProduto />
-          <CardProduto />
-          <CardProduto />
-          <CardProduto />
-          <CardProduto />
-          <CardProduto />
-          <CardProduto />
-          <CardProduto />
+          {
+            (carregandoFavoritos)?
+            <Spin indicator={<LoadingOutlined spin />} size="large" />
+            :
+            produtosFavoritos?.map((prod) => (
+              <CardProduto produto={prod} fav/>
+            ))
+          }
         </Flex>
 
         <Pagination defaultCurrent={1} total={10} />

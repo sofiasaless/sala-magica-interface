@@ -1,3 +1,4 @@
+import { ProdutosFavoritosProvider } from './contexts/ProdutosFavoritosContext'
 import { NotificacaoProvider } from './providers/NotificacaoProvider'
 import Rotas from './router'
 
@@ -5,7 +6,9 @@ function App() {
 
   return (
     <NotificacaoProvider>
-      <Rotas />
+      <ProdutosFavoritosProvider>
+        <Rotas />
+      </ProdutosFavoritosProvider>
     </NotificacaoProvider>
   )
 }
