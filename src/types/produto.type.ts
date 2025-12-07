@@ -1,5 +1,5 @@
 export type Produto = {
-  id?: string;
+  id?: string | number;
   titulo: string;
   descricao: string;
   preco: number;
@@ -9,6 +9,7 @@ export type Produto = {
   comprimento?: number;
   imagemCapa?: string;
   imagens?: string[];
+  materiais: string;
   ativo: boolean;
   dataAnuncio: Date;
 };

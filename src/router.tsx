@@ -1,5 +1,4 @@
 import { BrowserRouter, Route, Routes } from "react-router-dom";
-import { Navbar } from "./components/Navbar";
 import { Inicio } from "./pages/Inicio";
 import { Produtos } from "./pages/Produtos";
 import { Favoritos } from "./pages/Favoritos";
@@ -10,6 +9,7 @@ import { Notificacoes } from "./pages/Notificacoes";
 import { ItensPedidoProvider } from "./contexts/ItensCarrinhoContext";
 import Entrar from "./pages/Entrar";
 import Cadastro from "./pages/Cadastro";
+import { Navbar } from "./components/Navbar";
 
 export default function Rotas() {
   return (
