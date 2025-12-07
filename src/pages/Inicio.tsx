@@ -1,44 +1,32 @@
-import { Container } from "../components/Container";
 
-import { BulbOutlined, CrownOutlined, EditTwoTone, HeartTwoTone, HighlightOutlined, ShoppingTwoTone, SmileTwoTone } from "@ant-design/icons";
-import { Card, Col, Flex, Row, Typography } from 'antd';
-import { useEffect } from "react";
-import { AreaPesquisaProdutos } from "../components/AreaPesquisaProdutos";
+import { EditTwoTone, HeartTwoTone, ShoppingTwoTone, SmileTwoTone, StarFilled } from "@ant-design/icons";
+import { Button, Card, Col, Grid, Pagination, Row, Segmented, Typography } from 'antd';
+import { useEffect, useState } from "react";
 import { CardProduto } from "../components/CardProduto";
-import { CardServico, type ServicoType } from "../components/CardServico";
-import { Divisor } from "../components/Divisor";
-import FormularioEncomenda from "../components/FormularioEncomenda";
-import { colors } from "../theme/colors";
-import { useProdutosPaginados } from "../hooks/useProdutosPaginados";
-import { useAuthUser } from "../hooks/useAuthUser";
-import { useProdutosFavoritos } from "../contexts/ProdutosFavoritosContext";
 import { Carrossel } from "../components/Carrossel";
+import { useProdutosFavoritos } from "../contexts/ProdutosFavoritosContext";
+import { categories } from "../data/mockData";
+import { useAuthUser } from "../hooks/useAuthUser";
+import { useProdutosGeral } from "../hooks/useProdutosGeral";
+import { useProdutosPaginados } from "../hooks/useProdutosPaginados";
+import { colors } from "../theme/colors";
+const { useBreakpoint } = Grid;
 
 const { Title, Text, Paragraph } = Typography;
 
 export const Inicio = () => {
 
+  const screens = useBreakpoint();
+
   const { produtosPaginados, paginar } = useProdutosPaginados()
+  const { contarTotalProdutos, totalProdutos } = useProdutosGeral()
+
+  const [selectedCategory, setSelectedCategory] = useState('Todos');
+  const [page, setPage] = useState(1);
 
   useEffect(() => {
-    paginar({
-      limit: 4,
-      params: {
-        navigation: 'first'
-      },
-      filtro: {
-        categoria: "Enfeites de parede"
-      }
-    }, 'enfeites')
-    paginar({
-      limit: 4,
-      params: {
-        navigation: 'first'
-      },
-      filtro: {
-        categoria: "Materiais educativos"
-      }
-    }, 'educativo')
+    paginar()
+    contarTotalProdutos()
   }, [])
 
   const { isAutenticado } = useAuthUser();
@@ -81,94 +69,116 @@ export const Inicio = () => {
             </Col>
           ))}
         </Row>
-      </div>
-      {/* <Container
-        justifyContent="center"
-        paddingVertical={3}
-        flexDirection="column"
-        alignItems="center"
-      >
-        <AreaPesquisaProdutos />
-      </Container>
 
-      <Container
-        flexDirection="column"
-        justifyContent="center"
-        alignItems="center"
-        gap={15}
-      >
-
-        <Divisor 
-          titulo="Serviços"        
-        />
-
-        <Flex gap={50}>
-          {(servicoes_prestados).map((servico, indice) => (
-            <CardServico
-              key={indice}
-              servico={servico}
+        <div style={{ marginBottom: 24 }}>
+          <Title level={4} style={{ marginBottom: 16, color: '#262626' }}>
+            Explore por Categoria
+          </Title>
+          <div style={{ overflowX: 'auto', whiteSpace: 'nowrap', paddingBottom: 8 }}>
+            <Segmented
+              value={selectedCategory}
+              onChange={(value) => {
+                setSelectedCategory(value as string);
+                setPage(1);
+              }}
+              options={categories.map(cat => ({
+                label: cat,
+                value: cat
+              }))}
+              style={{
+                background: '#F5F5F5',
+                padding: 4,
+                borderRadius: 12
+              }}
             />
-          ))}
-        </Flex>
-      </Container>
+          </div>
+        </div>
 
-      <Container
-        backgroundColor={colors.primaryLight}
-        flexDirection="column"
-        justifyContent="center"
-        alignItems="center"
-        gap={20}
-      >
-        <Divisor 
-          titulo="Enfeites de parede"
-          props={{
-            orientation:"left",
-            variant:'solid'
+        <Row gutter={[16, 16]}>
+          {produtosPaginados?.get('')?.produtos.map((produto) => (
+            <Col xs={24} sm={12} md={8} lg={6} key={produto.id}>
+              <CardProduto produto={produto} />
+            </Col>
+          ))}
+        </Row>
+
+        <div style={{ textAlign: 'center', marginTop: 32 }}>
+          <Pagination
+            current={page}
+            defaultCurrent={page}
+            total={totalProdutos}
+            pageSize={8}
+            simple
+            onChange={(pageClicked) => {
+              if (pageClicked > page) {
+                console.log('avançando pagina')
+                console.info(produtosPaginados)
+                setPage(pageClicked)
+                paginar({
+                  limit: 8,
+                  params: {
+                    navigation: 'next',
+                    cursor: produtosPaginados?.get('')?.nextCursor,
+                    cursorPrev: produtosPaginados?.get('')?.prevCursor
+                  }
+                })
+              } else {
+                console.log('voltando pagina')
+                console.info(produtosPaginados)
+                setPage(pageClicked)
+                paginar({
+                  limit: 8,
+                  params: {
+                    navigation: 'last',
+                    cursor: produtosPaginados?.get('')?.nextCursor,
+                    cursorPrev: produtosPaginados?.get('')?.prevCursor
+                  }
+                })
+              }
+            }}
+          />
+        </div>
+
+        <Card
+          style={{
+            marginTop: 48,
+            borderRadius: 16,
+            background: 'linear-gradient(135deg, #E6FFFB 0%, #B5F5EC 100%)',
+            border: 'none'
           }}
-          corBorda={colors.backgroundMain}
-          corTitulo={colors.backgroundMain}
-        />
+          bodyStyle={{ padding: screens.md ? 48 : 24 }}
+        >
+          <Row gutter={[24, 24]} align="middle">
+            <Col xs={24} md={16}>
+              <Title level={2} style={{ color: '#08979C', marginBottom: 12 }}>
+                Não encontrou o que procura?
+              </Title>
+              <Paragraph style={{ fontSize: 16, color: '#595959', marginBottom: 0 }}>
+                Criamos peças personalizadas especialmente para você! Envie sua ideia e receba um orçamento sem compromisso.
+              </Paragraph>
+            </Col>
+            <Col xs={24} md={8} style={{ textAlign: screens.md ? 'right' : 'center' }}>
+              <Button
+                type="primary"
+                size="large"
+                icon={<StarFilled />}
+                style={{
+                  background: colors.secondary,
+                  borderColor: colors.secondary,
+                  borderRadius: 12,
+                  height: 56,
+                  paddingInline: 32,
+                  fontSize: 16,
+                  fontWeight: 600
+                }}
+              >
+                Fazer Encomenda
+              </Button>
+            </Col>
+          </Row>
+        </Card>
 
-        <Flex gap={"large"}>
-          {produtosPaginados?.get('enfeites')?.produtos.map((produto, indice) => (
-            <CardProduto key={indice} produto={produto} />
-          ))}
-        </Flex>
-
-        <Divisor 
-          titulo="Materiais educativos"
-          props={{
-            orientation:"left",
-            variant:'solid'
-          }}
-          corBorda={colors.backgroundMain}
-          corTitulo={colors.backgroundMain}
-        />
-
-        <Flex gap={"large"}>
-          {produtosPaginados?.get('educativo')?.produtos.map((produto, indice) => (
-            <CardProduto key={indice} produto={produto} />
-          ))}
-        </Flex>
-      </Container>
-
-      <Container
-        justifyContent="center"
-        alignItems="center"
-        flexDirection="column"
-        gap={15}
-      >
-        <Divisor 
-          titulo="Encomendas personalizadas"
-        />
-        <Divisor 
-          titulo="E que tal um enfeite exclusivo para sua sala de aula? Basta preencher o  formulário abaixo com os detalhes do que deseja e entraremos em contato  para alinhar os detalhes da sua encomenda."
-          tamanhoTitulo={'body'}
-          expessuraFonte={400}
-          width={50}
-        />
-        <FormularioEncomenda />
-      </Container> */}
+      </div>
     </>
   )
 }
