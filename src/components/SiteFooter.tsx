@@ -1,80 +1,96 @@
-import { Divider, Flex, Layout, Space, Typography } from "antd";
-import { InstagramOutlined, WhatsAppOutlined } from "@ant-design/icons";
+import { Button, Grid, Layout, Space } from "antd";
+import { categories } from "../data/mockData";
 import { colors } from "../theme/colors";
 
 const { Footer } = Layout;
-const { Title, Text, Link } = Typography;
+const { useBreakpoint } = Grid;
 
 export const SiteFooter = () => {
+   const screens = useBreakpoint();
+  
   return (
     <Footer
       style={{
-        backgroundColor: colors.backgroundFooter,
-        color: "#ffffff",
-        width: '100%'
+        background: '#001529',
+        color: 'white',
+        padding: screens.md ? '48px' : '32px 16px',
+        marginTop: 48
       }}
     >
-      <Flex
-        justify="center"
-        align="flex-start"
-        // wrap="wrap"
-        gap={80}
+      <div
+        style={{
+          maxWidth: 1200,
+          margin: '0 auto',
+          display: 'grid',
+          gridTemplateColumns: screens.md ? 'repeat(4, 1fr)' : '1fr',
+          gap: 32
+        }}
       >
-        {/* Coluna da descrição */}
-        <Flex vertical style={{ width: 500 }}>
-          <Divider
-            orientation="left"
-            style={{ borderColor: "#ffffff99", marginBottom: 20 }}
-          >
-            <Title level={5} style={{ color: "#ffffff", margin: 0 }}>
-              SALA MÁGICA
-            </Title>
-          </Divider>
+        <div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
+            <div style={{ fontFamily: 'Fredoka, sans-serif', fontSize: 24 }}>Sala Mágica</div>
+          </div>
+          <p style={{ color: 'rgba(255,255,255,0.65)', fontSize: 14, lineHeight: 1.8 }}>
+            Transformando salas de aula em ambientes mágicos e acolhedores com decorações artesanais feitas com amor.
+          </p>
+        </div>
 
-          <Text style={{ color: "#ffffffcc", lineHeight: 1.8 }}>
-            A “Sala Mágica” é um website desenvolvido com fins de divulgação de
-            enfeites e decorações artesanais para salas de aula de maternais e
-            jardins de infância, feitos com materiais como EVA, papel crepom e
-            TNT. Nosso objetivo é oferecer inspirações criativas e
-            personalizadas para tornar o ambiente escolar mais acolhedor, lúdico
-            e encantador. Não realizamos vendas diretas pelo site, mas conectamos
-            você ao fornecedor para encomendas e personalizações.
-          </Text>
+        <div>
+          <h4 style={{ color: colors.primary, marginBottom: 16, fontWeight: 600 }}>Links Rápidos</h4>
+          <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+            {['Início', 'Catálogo', 'Encomendas', 'Sobre Nós'].map(link => (
+              <li key={link} style={{ marginBottom: 8 }}>
+                <a style={{ color: 'rgba(255,255,255,0.65)', textDecoration: 'none' }}>{link}</a>
+              </li>
+            ))}
+          </ul>
+        </div>
 
-          <Divider
-            orientation="left"
-            style={{ borderColor: "#ffffff99", marginBottom: 20 }}
-          />
+        <div>
+          <h4 style={{ color: colors.primary, marginBottom: 16, fontWeight: 600 }}>Categorias</h4>
+          <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+            {categories.slice(1, 5).map(cat => (
+              <li key={cat} style={{ marginBottom: 8 }}>
+                <a style={{ color: 'rgba(255,255,255,0.65)', textDecoration: 'none' }}>{cat}</a>
+              </li>
+            ))}
+          </ul>
+        </div>
 
-          <Space size="large">
-            <InstagramOutlined style={{ fontSize: 24, color: "#ffffff" }} />
-            <WhatsAppOutlined style={{ fontSize: 24, color: "#ffffff" }} />
+        <div>
+          <h4 style={{ color: colors.primary, marginBottom: 16, fontWeight: 600 }}>Contato</h4>
+          <p style={{ color: 'rgba(255,255,255,0.65)', fontSize: 14, marginBottom: 8 }}>
+            📱 (85) 98753-9838
+          </p>
+          {/* <p style={{ color: 'rgba(255,255,255,0.65)', fontSize: 14, marginBottom: 8 }}>
+            📧 contato@salamagica.com.br
+          </p> */}
+          <p style={{ color: 'rgba(255,255,255,0.65)', fontSize: 14 }}>
+            📍 Baturité, CE
+          </p>
+          <Space style={{ marginTop: 16 }}>
+            <Button shape="circle" style={{ background: '#25D366', border: 'none', color: 'white' }}>
+              W
+            </Button>
+            <Button shape="circle" style={{ background: '#E1306C', border: 'none', color: 'white' }}>
+              I
+            </Button>
           </Space>
-        </Flex>
+        </div>
+      </div>
 
-        {/* Coluna de links */}
-        <Flex vertical style={{ width: 500 }}>
-          <Divider
-            orientation="left"
-            style={{ borderColor: "#ffffff99", marginBottom: 20 }}
-          >
-            <Title level={5} style={{ color: "#ffffff", margin: 0 }}>
-              SAIBA MAIS
-            </Title>
-          </Divider>
-
-          <Space direction="vertical" size="middle">
-            <Link style={{ color: "#ffffffcc", lineHeight: 1.8 }}>Política e Privacidade</Link>
-            <Link style={{ color: "#ffffffcc", lineHeight: 1.8 }}>Autores</Link>
-            <Link style={{ color: "#ffffffcc", lineHeight: 1.8 }}>Quem somos</Link>
-          </Space>
-
-          <Divider
-            orientation="left"
-            style={{ borderColor: "#ffffff99", marginBottom: 20 }}
-          />
-        </Flex>
-      </Flex>
+      <div
+        style={{
+          marginTop: 32,
+          paddingTop: 24,
+          borderTop: '1px solid rgba(255,255,255,0.1)',
+          textAlign: 'center',
+          color: 'rgba(255,255,255,0.45)',
+          fontSize: 13
+        }}
+      >
+        © 2024 Sala Mágica - Todos os direitos reservados. Feito com 💜 para educadores.
+      </div>
     </Footer>
-  );
-};
+  )
+}
