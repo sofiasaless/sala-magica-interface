@@ -28,6 +28,7 @@ import { Outlet, useNavigate } from 'react-router-dom';
 import logo from '../assets/logo.png';
 import { useItensCarrinho } from '../contexts/ItensCarrinhoContext';
 import { categories } from '../data/mockData';
+import { FooterComp } from './Footer';
 
 const { Header, Content } = Layout;
 const { useBreakpoint } = Grid;
@@ -272,6 +273,8 @@ export const Navbar = () => {
       >
         <Outlet />
       </Content>
+
+      <FooterComp />
 
     </Layout>
   );
