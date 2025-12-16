@@ -1,60 +1,35 @@
-import { Container } from "../components/Container";
 
-import { BulbOutlined, CrownOutlined, HighlightOutlined } from "@ant-design/icons";
-import { Flex } from 'antd';
-import { useEffect } from "react";
-import { AreaPesquisaProdutos } from "../components/AreaPesquisaProdutos";
+import { EditTwoTone, HeartTwoTone, ShoppingTwoTone, SmileTwoTone, StarFilled } from "@ant-design/icons";
+import { Button, Card, Col, Grid, Pagination, Row, Segmented, Typography } from 'antd';
+import { useEffect, useState } from "react";
 import { CardProduto } from "../components/CardProduto";
-import { CardServico, type ServicoType } from "../components/CardServico";
-import { Divisor } from "../components/Divisor";
-import FormularioEncomenda from "../components/FormularioEncomenda";
-import { colors } from "../theme/colors";
-import { useProdutosPaginados } from "../hooks/useProdutosPaginados";
-import { useAuthUser } from "../hooks/useAuthUser";
+import { Carrossel } from "../components/Carrossel";
 import { useProdutosFavoritos } from "../contexts/ProdutosFavoritosContext";
+import { categories } from "../data/mockData";
+import { useAuthUser } from "../hooks/useAuthUser";
+import { useProdutosGeral } from "../hooks/useProdutosGeral";
+import { useProdutosPaginados } from "../hooks/useProdutosPaginados";
+import { colors } from "../theme/colors";
+import { useNavigate } from "react-router-dom";
+const { useBreakpoint } = Grid;
 
-
-const servicoes_prestados: ServicoType[] = [
-  {
-    icone: <CrownOutlined color={colors.secondary} />,
-    titulo: "Enfeites Exclusivos",
-    descricao: "Que tal um enfeite único feito especialmente para você? Preencha o formulário e criaremos algo exclusivo e encantador."
-  },
-  {
-    icone: <BulbOutlined color={colors.secondary} />,
-    titulo: "Decorações Personalizadas",
-    descricao: "Produzimos decorações sob medida, com o seu toque especial em cada detalhe, do jeitinho que você sonhar para sua sala de aula!"
-  },
-  {
-    icone: <HighlightOutlined color={colors.secondary} />,
-    titulo: "Personalização com Carinho",
-    descricao: "Criamos cada peça com materiais como EVA, papel crepom e TNT, dando vida a decorações únicas e cheias de amor. Você imagina, nós criamos!"
-  }
-]
+const { Title, Text, Paragraph } = Typography;
 
 export const Inicio = () => {
 
+  const screens = useBreakpoint();
+
+  const navigator = useNavigate();
+
   const { produtosPaginados, paginar } = useProdutosPaginados()
-  
+  const { contarTotalProdutos, totalProdutos } = useProdutosGeral()
+
+  const [selectedCategory, setSelectedCategory] = useState('Todos');
+  const [page, setPage] = useState(1);
+
   useEffect(() => {
-    paginar({
-      limit: 4,
-      params: {
-        navigation: 'first'
-      },
-      filtro: {
-        categoria: "Enfeites de parede"
-      }
-    }, 'enfeites')
-    paginar({
-      limit: 4,
-      params: {
-        navigation: 'first'
-      },
-      filtro: {
-        categoria: "Materiais educativos"
-      }
-    }, 'educativo')
+    paginar()
+    contarTotalProdutos()
   }, [])
 
   const { isAutenticado } = useAuthUser();
@@ -68,93 +43,146 @@ export const Inicio = () => {
 
   return (
     <>
-      <Container
-        justifyContent="center"
-        paddingVertical={3}
-        flexDirection="column"
-        alignItems="center"
-      >
-        <AreaPesquisaProdutos />
-      </Container>
+      <div style={{ maxWidth: 1400, margin: '0 auto' }}>
+        <Carrossel />
 
-      <Container
-        flexDirection="column"
-        justifyContent="center"
-        alignItems="center"
-        gap={15}
-      >
+        <Row gutter={[16, 16]} style={{ marginBottom: 32 }}>
+          {[
+            { icon: <EditTwoTone twoToneColor={colors.secondary} />, label: 'Feito à Mão', value: '100%' },
+            { icon: <ShoppingTwoTone twoToneColor={colors.secondary} />, label: 'Produtos', value: `10+` },
+            { icon: <HeartTwoTone twoToneColor={colors.secondary} />, label: 'Avaliação', value: '4.9' },
+            { icon: <SmileTwoTone twoToneColor={colors.secondary} />, label: 'Clientes Felizes', value: '50+' }
+          ].map((stat, index) => (
+            <Col xs={12} sm={6} key={index}>
+              <Card
+                style={{
+                  textAlign: 'center',
+                  borderRadius: 12,
+                  border: '1px solid #E6FFFB',
+                  background: '#FAFAFA'
+                }}
+                bodyStyle={{ padding: 16 }}
+              >
+                <div style={{ fontSize: 42, marginBottom: 8 }}>{stat.icon}</div>
+                <Text strong style={{ fontSize: 24, color: colors.primary, display: 'block' }}>
+                  {stat.value}
+                </Text>
+                <Text type="secondary">{stat.label}</Text>
+              </Card>
+            </Col>
+          ))}
+        </Row>
 
-        <Divisor 
-          titulo="Serviços"        
-        />
-
-        <Flex gap={50}>
-          {(servicoes_prestados).map((servico, indice) => (
-            <CardServico
-              key={indice}
-              servico={servico}
+        <div style={{ marginBottom: 24 }}>
+          <Title level={4} style={{ marginBottom: 16, color: '#262626' }}>
+            Explore por Categoria
+          </Title>
+          <div style={{ overflowX: 'auto', whiteSpace: 'nowrap', paddingBottom: 8 }}>
+            <Segmented
+              value={selectedCategory}
+              onChange={(value) => {
+                setSelectedCategory(value as string);
+                setPage(1);
+              }}
+              options={categories.map(cat => ({
+                label: cat,
+                value: cat
+              }))}
+              style={{
+                background: '#F5F5F5',
+                padding: 4,
+                borderRadius: 12
+              }}
             />
-          ))}
-        </Flex>
-      </Container>
+          </div>
+        </div>
 
-      <Container
-        backgroundColor={colors.primaryLight}
-        flexDirection="column"
-        justifyContent="center"
-        alignItems="center"
-        gap={20}
-      >
-        <Divisor 
-          titulo="Enfeites de parede"
-          props={{
-            orientation:"left",
-            variant:'solid'
+        <Row gutter={[16, 16]}>
+          {produtosPaginados?.get('')?.produtos.map((produto) => (
+            <Col xs={24} sm={12} md={8} lg={6} key={produto.id}>
+              <CardProduto produto={produto} />
+            </Col>
+          ))}
+        </Row>
+
+        <div style={{ textAlign: 'center', marginTop: 32 }}>
+          <Pagination
+            current={page}
+            defaultCurrent={page}
+            total={totalProdutos}
+            pageSize={8}
+            simple
+            onChange={(pageClicked) => {
+              if (pageClicked > page) {
+                console.log('avançando pagina')
+                console.info(produtosPaginados)
+                setPage(pageClicked)
+                paginar({
+                  limit: 8,
+                  params: {
+                    navigation: 'next',
+                    cursor: produtosPaginados?.get('')?.nextCursor,
+                    cursorPrev: produtosPaginados?.get('')?.prevCursor
+                  }
+                })
+              } else {
+                console.log('voltando pagina')
+                console.info(produtosPaginados)
+                setPage(pageClicked)
+                paginar({
+                  limit: 8,
+                  params: {
+                    navigation: 'last',
+                    cursor: produtosPaginados?.get('')?.nextCursor,
+                    cursorPrev: produtosPaginados?.get('')?.prevCursor
+                  }
+                })
+              }
+            }}
+          />
+        </div>
+
+        <Card
+          style={{
+            marginTop: 48,
+            borderRadius: 16,
+            background: 'linear-gradient(135deg, #E6FFFB 0%, #B5F5EC 100%)',
+            border: 'none'
           }}
-          corBorda={colors.backgroundMain}
-          corTitulo={colors.backgroundMain}
-        />
+          bodyStyle={{ padding: screens.md ? 48 : 24 }}
+        >
+          <Row gutter={[24, 24]} align="middle">
+            <Col xs={24} md={16}>
+              <Title level={2} style={{ color: '#08979C', marginBottom: 12 }}>
+                Não encontrou o que procura?
+              </Title>
+              <Paragraph style={{ fontSize: 16, color: '#595959', marginBottom: 0 }}>
+                Criamos peças personalizadas especialmente para você! Envie sua ideia e receba um orçamento sem compromisso.
+              </Paragraph>
+            </Col>
+            <Col xs={24} md={8} style={{ textAlign: screens.md ? 'right' : 'center' }}>
+              <Button
+                type="primary"
+                size="large"
+                icon={<StarFilled />}
+                onClick={() => navigator('/encomenda')}
+                style={{
+                  background: colors.secondary,
+                  borderColor: colors.secondary,
+                  borderRadius: 12,
+                  height: 56,
+                  paddingInline: 32,
+                  fontSize: 16,
+                  fontWeight: 600
+                }}
+              >
+                Fazer Encomenda
+              </Button>
+            </Col>
+          </Row>
+        </Card>
 
-        <Flex gap={"large"}>
-          {produtosPaginados?.get('enfeites')?.produtos.map((produto, indice) => (
-            <CardProduto key={indice} produto={produto} />
-          ))}
-        </Flex>
-
-        <Divisor 
-          titulo="Materiais educativos"
-          props={{
-            orientation:"left",
-            variant:'solid'
-          }}
-          corBorda={colors.backgroundMain}
-          corTitulo={colors.backgroundMain}
-        />
-
-        <Flex gap={"large"}>
-          {produtosPaginados?.get('educativo')?.produtos.map((produto, indice) => (
-            <CardProduto key={indice} produto={produto} />
-          ))}
-        </Flex>
-      </Container>
-
-      <Container
-        justifyContent="center"
-        alignItems="center"
-        flexDirection="column"
-        gap={15}
-      >
-        <Divisor 
-          titulo="Encomendas personalizadas"
-        />
-        <Divisor 
-          titulo="E que tal um enfeite exclusivo para sua sala de aula? Basta preencher o  formulário abaixo com os detalhes do que deseja e entraremos em contato  para alinhar os detalhes da sua encomenda."
-          tamanhoTitulo={'body'}
-          expessuraFonte={400}
-          width={50}
-        />
-        <FormularioEncomenda />
-      </Container>
+      </div>
     </>
   )
 }

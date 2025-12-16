@@ -9,6 +9,7 @@ export type Produto = {
   comprimento?: number;
   imagemCapa?: string;
   imagens?: string[];
+  materiais: string;
   ativo: boolean;
   dataAnuncio: Date;
 };

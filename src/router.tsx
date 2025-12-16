@@ -1,15 +1,15 @@
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { Navbar } from "./components/Navbar";
-import { Inicio } from "./pages/Inicio";
-import { Produtos } from "./pages/Produtos";
-import { Favoritos } from "./pages/Favoritos";
-import { Perfil } from "./pages/Perfil";
-import { DetalheProduto } from "./pages/DetalheProduto";
-import { Carrinho } from "./pages/Carrinho";
-import { Notificacoes } from "./pages/Notificacoes";
 import { ItensPedidoProvider } from "./contexts/ItensCarrinhoContext";
-import Entrar from "./pages/Entrar";
 import Cadastro from "./pages/Cadastro";
+import { DetalhesProduto } from "./pages/DetalheProduto";
+import { FormularioEncomenda } from "./pages/Encomenda";
+import Entrar from "./pages/Entrar";
+import { Favoritos } from "./pages/Favoritos";
+import { Inicio } from "./pages/Inicio";
+import { Notificacoes } from "./pages/Notificacoes";
+import { Usuario } from "./pages/Usuario";
+import { Carrinho } from "./pages/Carrinho";
 
 export default function Rotas() {
   return (
@@ -19,11 +19,11 @@ export default function Rotas() {
           <Route path="/" element={<Navbar />} >
 
             <Route path="/" element={<Inicio />} />
-            <Route path="/produtos" element={<Produtos />} />
             <Route path="/favoritos" element={<Favoritos />} />
-            <Route path="/perfil" element={<Perfil />} />
+            <Route path="/perfil" element={<Usuario />} />
 
-            <Route path="/produto/:id" element={<DetalheProduto />} />
+            <Route path="/produto/:id" element={<DetalhesProduto />} />
+            <Route path="/encomenda" element={<FormularioEncomenda />}></Route>
 
             <Route path="/carrinho" element={<Carrinho />} />
             <Route path="/notificacoes" element={<Notificacoes />} />
