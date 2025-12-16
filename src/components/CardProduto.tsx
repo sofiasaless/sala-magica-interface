@@ -5,9 +5,11 @@ import type React from "react";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useProdutosFavoritos } from "../contexts/ProdutosFavoritosContext";
-import type { Produto } from "../types/produto.type";
+import type { ItemCarrinho, Produto } from "../types/produto.type";
 import { colors } from "../theme/colors";
 import { useAuth } from "../contexts/AuthContext";
+import { useItensCarrinho } from "../contexts/ItensCarrinhoContext";
+import { useNotificacao } from "../providers/NotificacaoProvider";
 
 const { Title, Text } = Typography;
 const { useBreakpoint } = Grid;
@@ -31,6 +33,10 @@ export const CardProduto: React.FC<{ produto?: Produto, fav?: boolean }> = ({ pr
       return
     }
   }
+
+  const { adicionarItem } = useItensCarrinho()
+
+  const notificacao = useNotificacao()
 
   useEffect(() => {
     if (isAutenticado) {
@@ -162,7 +168,16 @@ export const CardProduto: React.FC<{ produto?: Produto, fav?: boolean }> = ({ pr
           icon={<ShoppingCartOutlined />}
           onClick={(e) => {
             e.stopPropagation();
-
+            const item: ItemCarrinho = {
+              quantidade: 1,
+              ...produto!
+            }
+            adicionarItem(item)
+            notificacao({
+              message: `"${produto?.titulo}" adicionado ao carrinho!`,
+              type: 'success',
+              placement: 'bottom'
+            })
           }}
           // disabled={!produto?.ativo}
           style={{

@@ -1,41 +1,62 @@
 import { createContext, useContext, useState, type ReactNode } from "react";
-import type { Produto } from "../types/produto.type";
+import type { ItemCarrinho } from "../types/produto.type";
 
 interface ItensCarrinhoContextType {
-  itensCarrinho: Produto[],
-  adicionarItem: (item: Produto) => void,
+  carrinho: ItemCarrinho[],
+  carrinhoVisitante: ItemCarrinho[],
+  adicionarItem: (item: ItemCarrinho) => void,
   removerItem: (item_id: string) => void,
   isVazio: () => boolean,
-  limparItens: () => void
+  limparItens: () => void,
+  alterarQuantidade: (item_id: string, quantidade: number) => void
 }
 
 const ItensCarrinhoContext = createContext<ItensCarrinhoContextType | undefined>(undefined);
 
 export const ItensPedidoProvider = ({ children }: { children: ReactNode }) => {
-  const [itensCarrinho, setItensCarrinho] = useState<Produto[]>([])
-  
-  const adicionarItem = (item: Produto) => {
-    // se o item ja estiver no carrinho, entao nao adiciona mais
-    // if (!(itensCarrinho.find(produto => produto.id === item.id))) {
-      setItensCarrinho(prev => [...prev, item])
-    //   localStorage.setItem('carrinho', JSON.stringify(itensCarrinho))
-    // }
+  const [carrinho, setCarrinho] = useState<ItemCarrinho[]>([])
+  const [carrinhoVisitante, setCarrinhoVisitante] = useState<ItemCarrinho[]>([])
+
+  const adicionarItem = (item: ItemCarrinho) => {
+    const indice = carrinho.findIndex(it => it.id === item.id)
+    if (indice === -1) {
+      setCarrinho(prev => [...prev, item])
+      return
+    }
+    let itens = carrinho
+    itens[indice].quantidade += 1
+    console.info('itens atuailizados: ', itens)
+    setCarrinho(itens);
+    return
   }
 
   const removerItem = (item_id: string) => {
-    setItensCarrinho(prev => prev.filter(item => item.id !== item_id))
+    setCarrinho(prev => prev.filter(item => item.id !== item_id))
+  }
+
+  const alterarQuantidade = (item_id: string, quantidade: number) => {
+    if (quantidade <= 0) {
+      removerItem(item_id);
+      return;
+    }
+    setCarrinho(prev =>
+      prev.map(item =>
+        item.id === item_id ? { ...item, quantidade } : item
+      )
+    );
   }
 
   const isVazio = () => {
-    return itensCarrinho.length === 0
+    return carrinho.length === 0
   }
 
   const limparItens = () => {
-    setItensCarrinho([]);
+    setCarrinho([]);
+    setCarrinhoVisitante([]);
   }
-  
+
   return (
-    <ItensCarrinhoContext.Provider value={{itensCarrinho, adicionarItem, removerItem, isVazio, limparItens}}>
+    <ItensCarrinhoContext.Provider value={{ carrinho, adicionarItem, removerItem, isVazio, limparItens, carrinhoVisitante, alterarQuantidade }}>
       {children}
     </ItensCarrinhoContext.Provider>
   )

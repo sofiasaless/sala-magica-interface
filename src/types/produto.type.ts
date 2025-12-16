@@ -19,3 +19,11 @@ export type PageProductResponse = {
   nextCursor: string,
   prevCursor: string
 }
+
+// export type ItemCarrinho = Omit<Produto, "ativo" | "dataAnuncio" | "materiais"> & {
+//   quantidade: number
+// }
+
+export type ItemCarrinho = Produto & {
+  quantidade: number
+}

@@ -44,7 +44,7 @@ export const Navbar = () => {
 
   const { desconectarUsuario } = useAuth()
 
-  const { itensCarrinho } = useItensCarrinho()
+  const { carrinho } = useItensCarrinho()
 
   const screens = useBreakpoint();
 
@@ -80,7 +80,7 @@ export const Navbar = () => {
     { key: '', icon: <HomeOutlined />, label: 'Início', onclick: () => setCurrentPage('') },
     { key: 'encomenda', icon: <StarOutlined />, label: 'Encomenda', onclick: () => setCurrentPage('encomenda') },
     { key: 'favoritos', icon: <HeartOutlined />, label: `Favoritos (${produtosFavoritos?.length})`, onclick: () => setCurrentPage('favoritos') },
-    { key: 'carrinho', icon: <ShoppingCartOutlined />, label: `Carrinho (${itensCarrinho.length})`, onclick: () => setCurrentPage('carrinho') },
+    { key: 'carrinho', icon: <ShoppingCartOutlined />, label: `Carrinho (${carrinho.length})`, onclick: () => setCurrentPage('carrinho') },
     { key: 'perfil', icon: <UserOutlined />, label: 'Perfil', onclick: () => setCurrentPage('perfil') },
   ];
 
@@ -231,7 +231,7 @@ export const Navbar = () => {
             <Button
               type="text"
               icon={
-                <Badge count={itensCarrinho.length} size="small" offset={[-2, 2]}>
+                <Badge count={carrinho.length} size="small" offset={[-2, 2]}>
                   <ShoppingCartOutlined style={{ fontSize: 20, color: 'white' }} />
                 </Badge>
               }
