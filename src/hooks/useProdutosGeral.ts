@@ -7,8 +7,8 @@ export function useProdutosGeral() {
   const [produto, setProduto] = useState<Produto>()
   const [carregandoProdutos, setCarregandoProdutos] = useState<boolean>(false)
 
-  async function contarTotalProdutos() {
-    const resultado = await ProdutoService.contarProdutos()
+  async function contarTotalProdutos(categoria?: string) {
+    const resultado = await ProdutoService.contarProdutos(categoria)
     setTotalProdutos(resultado.total)
   }
 

@@ -11,8 +11,8 @@ export const ProdutoService = {
     return data
   },
 
-  async contarProdutos() {
-    const { data } = await produtosApi.contarProdutos()
+  async contarProdutos(categoria?: string) {
+    const { data } = await produtosApi.contarProdutos(categoria)
     return data    
   },
 

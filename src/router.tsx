@@ -10,29 +10,32 @@ import { Inicio } from "./pages/Inicio";
 import { Notificacoes } from "./pages/Notificacoes";
 import { Usuario } from "./pages/Usuario";
 import { Carrinho } from "./pages/Carrinho";
+import { CategoriasProdutoProvider } from "./contexts/CategoriasProdutoContext";
 
 export default function Rotas() {
   return (
     <ItensPedidoProvider>
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Navbar />} >
+      <CategoriasProdutoProvider>
+        <BrowserRouter>
+          <Routes>
+            <Route path="/" element={<Navbar />} >
 
-            <Route path="/" element={<Inicio />} />
-            <Route path="/favoritos" element={<Favoritos />} />
-            <Route path="/perfil" element={<Usuario />} />
+              <Route path="/" element={<Inicio />} />
+              <Route path="/favoritos" element={<Favoritos />} />
+              <Route path="/perfil" element={<Usuario />} />
 
-            <Route path="/produto/:id" element={<DetalhesProduto />} />
-            <Route path="/encomenda" element={<FormularioEncomenda />}></Route>
+              <Route path="/produto/:id" element={<DetalhesProduto />} />
+              <Route path="/encomenda" element={<FormularioEncomenda />}></Route>
 
-            <Route path="/carrinho" element={<Carrinho />} />
-            <Route path="/notificacoes" element={<Notificacoes />} />
+              <Route path="/carrinho" element={<Carrinho />} />
+              <Route path="/notificacoes" element={<Notificacoes />} />
 
-          </Route>
-          <Route path="/entrar" element={<Entrar />} />
-          <Route path="/cadastro" element={<Cadastro />} />
-        </Routes>
-      </BrowserRouter>
+            </Route>
+            <Route path="/entrar" element={<Entrar />} />
+            <Route path="/cadastro" element={<Cadastro />} />
+          </Routes>
+        </BrowserRouter>
+      </CategoriasProdutoProvider>
     </ItensPedidoProvider>
   )
 }
