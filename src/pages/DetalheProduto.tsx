@@ -29,11 +29,11 @@ import { createContext, useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useItensCarrinho } from '../contexts/ItensCarrinhoContext';
 import { useProdutosFavoritos } from '../contexts/ProdutosFavoritosContext';
-import { useAuthUser } from '../hooks/useAuthUser';
 import { useProdutosGeral } from '../hooks/useProdutosGeral';
 import { useProdutosPaginados } from '../hooks/useProdutosPaginados';
 import { colors } from '../theme/colors';
 import type { NotificationPlacement } from 'antd/es/notification/interface';
+import { useAuth } from '../contexts/AuthContext';
 
 const { Title, Text, Paragraph } = Typography;
 const { useBreakpoint } = Grid;
@@ -67,7 +67,7 @@ export function DetalhesProduto() {
   const { produtosPaginados, paginar, carregandoPaginados } = useProdutosPaginados();
 
   const [isFav, setIsFav] = useState<boolean>(false)
-  const { isAutenticado } = useAuthUser()
+  const { isAutenticado } = useAuth()
   const { curtirOuDescurtirProduto, recarregarProdutosFavoritos, isProdutoFavoritado } = useProdutosFavoritos()
 
   const handleFavAction = async () => {

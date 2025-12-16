@@ -26,12 +26,12 @@ import {
 import type { UploadFile } from 'antd/es/upload/interface';
 import { useEffect, useState } from 'react';
 import { useCategoriasProduto } from '../contexts/CategoriasProdutoContext';
-import { useAuthUser } from '../hooks/useAuthUser';
 import { useNotificacao } from '../providers/NotificacaoProvider';
 import { CloudinaryService } from '../service/cloudnary.service';
 import { colors } from '../theme/colors';
 import type { EncomendaRequestBody } from '../types/encomenda.type';
 import { EncomendaService } from '../service/encomenda.service';
+import { useAuth } from '../contexts/AuthContext';
 
 const { Title, Text, Paragraph } = Typography;
 const { TextArea } = Input;
@@ -39,8 +39,6 @@ const { useBreakpoint } = Grid;
 
 export function FormularioEncomenda() {
   const [componentDisabled, setComponentDisabled] = useState<boolean>(false);
-
-  const { isAutenticado } = useAuthUser()
 
   const [form] = Form.useForm<EncomendaRequestBody>();
 
@@ -53,7 +51,7 @@ export function FormularioEncomenda() {
 
   const floatNotificacao = useNotificacao();
 
-  const { usuario } = useAuthUser()
+  const { usuario, isAutenticado } = useAuth()
 
   const handleEnviar = async (valores: EncomendaRequestBody) => {
     const urlsDasImagens = await Promise.all(

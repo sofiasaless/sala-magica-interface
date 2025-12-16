@@ -7,10 +7,10 @@ import { CardProduto } from "../components/CardProduto";
 import { Carrossel } from "../components/Carrossel";
 import { useCategoriasProduto } from "../contexts/CategoriasProdutoContext";
 import { useProdutosFavoritos } from "../contexts/ProdutosFavoritosContext";
-import { useAuthUser } from "../hooks/useAuthUser";
 import { useProdutosGeral } from "../hooks/useProdutosGeral";
 import { useProdutosPaginados } from "../hooks/useProdutosPaginados";
 import { colors } from "../theme/colors";
+import { useAuth } from "../contexts/AuthContext";
 const { useBreakpoint } = Grid;
 
 const { Title, Text, Paragraph } = Typography;
@@ -34,12 +34,13 @@ export const Inicio = () => {
     contarTotalProdutos()
   }, [])
 
-  const { isAutenticado } = useAuthUser();
+  const { isAutenticado } = useAuth()
   const { produtosFavoritos, carregarProdutosFavoritos } = useProdutosFavoritos();
 
   useEffect(() => {
     if (isAutenticado) {
       if (produtosFavoritos === undefined) carregarProdutosFavoritos();
+      return
     }
   }, [isAutenticado])
 
@@ -100,7 +101,7 @@ export const Inicio = () => {
                   }
                 })
               }}
-              options={[{nome: 'Todos', id: 'Todos', data_criacao: ''}].concat(categoriasProdutos ?? []).map(cat => ({
+              options={[{ nome: 'Todos', id: 'Todos', data_criacao: '' }].concat(categoriasProdutos ?? []).map(cat => ({
                 label: cat.nome,
                 value: cat.id,
               })) || []}

@@ -35,12 +35,12 @@ import { CardEncomenda } from '../components/CardEncomenda';
 import { ItemNotificacao } from '../components/ItemNotificacao';
 import { NaoConectadoFeedback } from '../components/NaoConectadoFeedback';
 import { useProdutosFavoritos } from '../contexts/ProdutosFavoritosContext';
-import { useAuthUser } from '../hooks/useAuthUser';
 import { colors } from '../theme/colors';
 import { formatarDataPtBR } from '../util/datas.util';
 import type { EncomendaResponseBody } from '../types/encomenda.type';
 import { EncomendaService } from '../service/encomenda.service';
 import { useNotificacao } from '../providers/NotificacaoProvider';
+import { useAuth } from '../contexts/AuthContext';
 
 const { Title, Text } = Typography;
 const { useBreakpoint } = Grid;
@@ -66,7 +66,7 @@ export function Usuario() {
   const [form] = Form.useForm();
   const screens = useBreakpoint();
 
-  const { usuario, isAutenticado } = useAuthUser()
+  const { usuario, isAutenticado } = useAuth()
 
   if (!isAutenticado) {
     return <NaoConectadoFeedback proposito='personalizar seu perfil na Sala Mágica!' />

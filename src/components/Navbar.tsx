@@ -28,8 +28,8 @@ import { Outlet, useNavigate } from 'react-router-dom';
 import logo from '../assets/logo.png';
 import { useItensCarrinho } from '../contexts/ItensCarrinhoContext';
 import { useProdutosFavoritos } from '../contexts/ProdutosFavoritosContext';
-import { useAuthUser } from '../hooks/useAuthUser';
 import { SiteFooter } from './SiteFooter';
+import { useAuth } from '../contexts/AuthContext';
 
 const { Header, Content } = Layout;
 const { useBreakpoint } = Grid;
@@ -39,9 +39,9 @@ export const Navbar = () => {
   const [searchValue, setSearchValue] = useState('');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-  const { produtosFavoritos } = useProdutosFavoritos();
+  const { produtosFavoritos, limparConext } = useProdutosFavoritos();
 
-  const { desconectarUsuario } = useAuthUser()
+  const { desconectarUsuario } = useAuth()
 
   const { itensCarrinho } = useItensCarrinho()
 
@@ -64,7 +64,11 @@ export const Navbar = () => {
         { key: 'perfil', icon: <UserOutlined />, label: 'Meu Perfil', onClick: () => navigate('perfil') },
         { key: 'orders', icon: <FormOutlined />, label: 'Minhas Encomendas' },
         { type: 'divider' as const },
-        { key: 'logout', label: 'Sair', danger: true, onClick: async () => await  desconectarUsuario()}
+        { key: 'logout', label: 'Sair', danger: true, onClick: async () => {
+          await desconectarUsuario();
+          limparConext()
+          window.location.reload()
+        }}
       ]}
     />
   );

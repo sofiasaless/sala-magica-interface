@@ -5,9 +5,9 @@ import type React from "react";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useProdutosFavoritos } from "../contexts/ProdutosFavoritosContext";
-import { useAuthUser } from "../hooks/useAuthUser";
 import type { Produto } from "../types/produto.type";
 import { colors } from "../theme/colors";
+import { useAuth } from "../contexts/AuthContext";
 
 const { Title, Text } = Typography;
 const { useBreakpoint } = Grid;
@@ -18,7 +18,7 @@ export const CardProduto: React.FC<{ produto?: Produto, fav?: boolean }> = ({ pr
    const screens = useBreakpoint();
 
   const [isFav, setIsFav] = useState<boolean>(fav || false)
-  const { isAutenticado } = useAuthUser()
+  const { isAutenticado } = useAuth()
   const { curtirOuDescurtirProduto, recarregarProdutosFavoritos, isProdutoFavoritado, produtosFavoritos } = useProdutosFavoritos()
 
   const handleFavAction = async () => {
