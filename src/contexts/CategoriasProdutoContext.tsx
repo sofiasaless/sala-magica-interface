@@ -6,7 +6,8 @@ import { errorHookResponse, successHookResponseByAxios, type HookResponse } from
 
 interface CategoriasProdutoContextType {
   categoriasProdutos: CategoriaResponseBody[] | undefined,
-  carregandoCategorias: boolean
+  carregandoCategorias: boolean,
+  encontrarNomePorId: (id: string | undefined) => string | undefined
 }
 
 const CategoriasProdutoContext = createContext<CategoriasProdutoContextType | undefined>(undefined);
@@ -16,7 +17,7 @@ export const CategoriasProdutoProvider = ({ children }: { children: ReactNode })
   const [carregandoCategorias, setCarregandoCategorias] = useState(false)
 
   useEffect(() => {
-    buscarTodas()
+    if (!categoriasProdutos) buscarTodas();
   }, [])
 
   const buscarTodas = async (): Promise<HookResponse<CategoriaResponseBody[]>> => {
@@ -32,8 +33,13 @@ export const CategoriasProdutoProvider = ({ children }: { children: ReactNode })
     }
   }
 
+  const encontrarNomePorId = (id: string | undefined) => {
+    if (!id) return ''
+    return categoriasProdutos?.find(cat => cat.id === id)?.nome
+  }
+
   return (
-    <CategoriasProdutoContext.Provider value={{ categoriasProdutos, carregandoCategorias }}>
+    <CategoriasProdutoContext.Provider value={{ categoriasProdutos, carregandoCategorias, encontrarNomePorId }}>
       {children}
     </CategoriasProdutoContext.Provider>
   )

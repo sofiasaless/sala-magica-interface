@@ -25,13 +25,13 @@ import {
 } from 'antd';
 import type { UploadFile } from 'antd/es/upload/interface';
 import { useEffect, useState } from 'react';
-import { categories } from '../data/mockData';
+import { useCategoriasProduto } from '../contexts/CategoriasProdutoContext';
 import { useAuthUser } from '../hooks/useAuthUser';
 import { useNotificacao } from '../providers/NotificacaoProvider';
 import { CloudinaryService } from '../service/cloudnary.service';
-import { EncomendaService } from '../service/encomenda.service';
 import { colors } from '../theme/colors';
-import type { Encomenda } from '../types/encomenda.type';
+import type { EncomendaRequestBody } from '../types/encomenda.type';
+import { EncomendaService } from '../service/encomenda.service';
 
 const { Title, Text, Paragraph } = Typography;
 const { TextArea } = Input;
@@ -42,49 +42,56 @@ export function FormularioEncomenda() {
 
   const { isAutenticado } = useAuthUser()
 
-  const [form] = Form.useForm<Encomenda>();
+  const [form] = Form.useForm<EncomendaRequestBody>();
 
   const [fileList, setFileList] = useState<UploadFile[]>([]);
   const [fotos, setFotos] = useState<File[]>([])
 
-  const [previewData, setPreviewData] = useState<Partial<Encomenda> | null>(null);
+  const [previewData, setPreviewData] = useState<Partial<EncomendaRequestBody> | null>(null);
 
   const screens = useBreakpoint();
 
   const floatNotificacao = useNotificacao();
 
-  const handleEnviar = async (valores: Encomenda) => {
-    try {
-      const urlsDasImagens = await Promise.all(
-        fotos.map((foto) => CloudinaryService.enviarImagem(foto))
-      )
+  const { usuario } = useAuthUser()
 
-      const encomendaFinal: Encomenda = {
-        ...valores,
-        imagemReferencia: urlsDasImagens
-      }
+  const handleEnviar = async (valores: EncomendaRequestBody) => {
+    const urlsDasImagens = await Promise.all(
+      fotos.map((foto) => CloudinaryService.enviarImagem(foto))
+    )
 
-      const resultado = await EncomendaService.enviarEncomenda(encomendaFinal);
-
-      floatNotificacao({
-        message: resultado.titulo,
-        description: resultado.mensagem,
-        placement: 'bottom'
-      })
-
-      form.resetFields();
-
-    } catch (error) {
-      floatNotificacao({
-        message: 'Erro ao enviar a encomenda',
-        description: 'Tente novamente mais tarde'
-      })
+    const encomendaFinal: EncomendaRequestBody = {
+      ...valores,
+      solicitante: usuario?.uid || '',
+      referencias: valores.referencias || '',
+      imagemReferencia: urlsDasImagens
     }
+
+    const resultado = await EncomendaService.enviarEncomenda(encomendaFinal);
+
+    if (!resultado.ok) {
+      floatNotificacao({
+        type: 'error',
+        message: 'Erro ao enviar encomenda',
+        description: resultado.message
+      })
+      return
+    }
+
+    floatNotificacao({
+      type: 'success',
+      message: resultado.message,
+      description: 'Em breve entraremos em contato!',
+      placement: 'bottom'
+    })
+
+    form.resetFields();
+
   }
 
   const handleFormChange = () => {
     const values = form.getFieldsValue();
-    if (values.descricao || values.categoria || values.altura || values.comprimento) {
+    if (values.descricao || values.categoria_reference || values.altura || values.comprimento || values.referencias) {
       setPreviewData(values);
     }
   };
@@ -95,6 +102,8 @@ export function FormularioEncomenda() {
     { icon: <MessageTwoTone twoToneColor={colors.secondary} />, title: 'Atendimento Direto', description: 'Converse pelo WhatsApp' },
     { icon: <FireTwoTone twoToneColor={colors.primary} />, title: 'Qualidade Artesanal', description: 'Feito à mão com carinho' }
   ];
+
+  const { categoriasProdutos, encontrarNomePorId } = useCategoriasProduto()
 
   useEffect(() => {
     if (!isAutenticado) setComponentDisabled(true)
@@ -162,16 +171,16 @@ export function FormularioEncomenda() {
               onFinish={handleEnviar}
             >
               <Form.Item
-                name="categoria"
+                name="categoria_reference"
                 label="Categoria do Produto"
                 rules={[{ required: true, message: 'Selecione uma categoria' }]}
               >
                 <Select
                   placeholder="Selecione a categoria"
                   size="large"
-                  options={categories.filter(c => c !== 'Todos').map(cat => ({
-                    label: cat,
-                    value: cat
+                  options={categoriasProdutos?.map(cat => ({
+                    label: cat.nome,
+                    value: cat.id
                   }))}
                 />
               </Form.Item>
@@ -338,7 +347,7 @@ export function FormularioEncomenda() {
                     <div>
                       <Text type="secondary">Categoria:</Text>
                       <br />
-                      <Text strong style={{ color: colors.primary }}>{previewData.categoria}</Text>
+                      <Text strong style={{ color: colors.primary }}>{encontrarNomePorId(previewData.categoria_reference)}</Text>
                     </div>
 
                     <Divider style={{ margin: '8px 0' }} />

@@ -1,5 +1,4 @@
 import {
-  AppstoreOutlined,
   BellOutlined,
   FormOutlined,
   HeartOutlined,
@@ -28,10 +27,9 @@ import { useState } from 'react';
 import { Outlet, useNavigate } from 'react-router-dom';
 import logo from '../assets/logo.png';
 import { useItensCarrinho } from '../contexts/ItensCarrinhoContext';
-import { categories } from '../data/mockData';
-import { SiteFooter } from './SiteFooter';
 import { useProdutosFavoritos } from '../contexts/ProdutosFavoritosContext';
 import { useAuthUser } from '../hooks/useAuthUser';
+import { SiteFooter } from './SiteFooter';
 
 const { Header, Content } = Layout;
 const { useBreakpoint } = Grid;
@@ -51,14 +49,14 @@ export const Navbar = () => {
 
   const navigate = useNavigate();
 
-  const categoryMenu = (
-    <Menu
-      items={categories.map(cat => ({
-        key: cat,
-        label: cat
-      }))}
-    />
-  );
+  // const categoryMenu = (
+  //   <Menu
+  //     items={categories.map(cat => ({
+  //       key: cat,
+  //       label: cat
+  //     }))}
+  //   />
+  // );
 
   const userMenu = (
     <Menu
@@ -72,11 +70,11 @@ export const Navbar = () => {
   );
 
   const navItems = [
-    { key: 'home', icon: <HomeOutlined />, label: 'Início' },
-    { key: 'custom', icon: <StarOutlined />, label: 'Encomenda' },
-    { key: 'favorites', icon: <HeartOutlined />, label: `Favoritos (${produtosFavoritos?.length})` },
-    { key: 'cart', icon: <ShoppingCartOutlined />, label: `Carrinho (${itensCarrinho.length})` },
-    { key: 'perfil', icon: <UserOutlined />, label: 'Perfil' },
+    { key: '', icon: <HomeOutlined />, label: 'Início', onclick: () => setCurrentPage('') },
+    { key: 'encomenda', icon: <StarOutlined />, label: 'Encomenda', onclick: () => setCurrentPage('encomenda') },
+    { key: 'favoritos', icon: <HeartOutlined />, label: `Favoritos (${produtosFavoritos?.length})`, onclick: () => setCurrentPage('favoritos') },
+    { key: 'carrinho', icon: <ShoppingCartOutlined />, label: `Carrinho (${itensCarrinho.length})`, onclick: () => setCurrentPage('carrinho') },
+    { key: 'perfil', icon: <UserOutlined />, label: 'Perfil', onclick: () => setCurrentPage('perfil') },
   ];
 
   return (
@@ -167,7 +165,7 @@ export const Navbar = () => {
               Encomendar
             </Button>
 
-            <Dropdown menu={{ items: categoryMenu.props.items }} placement="bottomRight">
+            {/* <Dropdown menu={{ items: categoryMenu.props.items }} placement="bottomRight">
               <Button
                 type="text"
                 icon={<AppstoreOutlined />}
@@ -175,7 +173,7 @@ export const Navbar = () => {
               >
                 Categorias
               </Button>
-            </Dropdown>
+            </Dropdown> */}
 
             <Button
               type="text"
