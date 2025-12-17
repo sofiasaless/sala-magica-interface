@@ -4,12 +4,13 @@ import { HttpStatusCode } from "axios";
 import type React from "react";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useProdutosFavoritos } from "../contexts/ProdutosFavoritosContext";
-import type { ItemCarrinho, Produto } from "../types/produto.type";
-import { colors } from "../theme/colors";
 import { useAuth } from "../contexts/AuthContext";
 import { useItensCarrinho } from "../contexts/ItensCarrinhoContext";
+import { useProdutosFavoritos } from "../contexts/ProdutosFavoritosContext";
 import { useNotificacao } from "../providers/NotificacaoProvider";
+import { colors } from "../theme/colors";
+import type { Produto } from "../types/produto.type";
+import { produtoToItemCarrinho } from "../util/carrinho.util";
 
 const { Title, Text } = Typography;
 const { useBreakpoint } = Grid;
@@ -168,11 +169,8 @@ export const CardProduto: React.FC<{ produto?: Produto, fav?: boolean }> = ({ pr
           icon={<ShoppingCartOutlined />}
           onClick={async (e) => {
             e.stopPropagation();
-            const item: ItemCarrinho = {
-              quantidade: 1,
-              ...produto!
-            }
-            const result = await adicionarItem(item)
+
+            const result = await adicionarItem(produtoToItemCarrinho(produto!, 1))
             
             if (result.ok) {
               notificacao({

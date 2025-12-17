@@ -5,7 +5,7 @@ export const CarrinhoService = {
     return await cartApi.listarItens();
   },
 
-  async acaoCarrinho(id_produto: string, quantidade?: number) {
+  async acaoCarrinho(id_produto: string, quantidade: number) {
     return await cartApi.acaoCarrinho(id_produto, quantidade);
   },
 
@@ -15,5 +15,9 @@ export const CarrinhoService = {
 
   async limparCarrinho() {
     return await cartApi.limparCarrinho();
-  }
+  },
+
+  async atualizatQtdItem(id_item: string, quantidade: number) {
+    return await cartApi.atualizarQtdItem(id_item, quantidade);
+  },
 }

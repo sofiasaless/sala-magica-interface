@@ -59,6 +59,7 @@ export const Carrinho = () => {
   };
 
   const handleWhatsAppCheckout = () => {
+    console.info(carrinho)
     message.success('Pedido enviado para o WhatsApp!');
   };
 
@@ -106,7 +107,7 @@ export const Carrinho = () => {
           max={10}
           value={record.quantidade}
           onChange={(value) => {
-            alterarQuantidade(value!, record.id_item!, record.id!);
+            alterarQuantidade(value!, record.id!)
           }}
           size="small"
         />

@@ -11,7 +11,7 @@ interface ItensCarrinhoContextType {
   removerItem: (item_id: string, produto_id: string) => Promise<HookResponse<any>>,
   isVazio: () => boolean,
   limparItens: () => Promise<HookResponse<any>>,
-  alterarQuantidade: (quantidade: number, item_id?: string, id_produto?: string) => Promise<HookResponse<any> | undefined>
+  alterarQuantidade: (quantidade: number, id_produto: string) => Promise<HookResponse<any> | undefined>
 }
 
 const ItensCarrinhoContext = createContext<ItensCarrinhoContextType | undefined>(undefined);
@@ -29,7 +29,7 @@ export const ItensPedidoProvider = ({ children }: { children: ReactNode }) => {
     }
   }, [isAutenticado])
 
-  async function toItemCarrinho(item: ItemCarrinhoResponseBody): Promise<ItemCarrinho> {
+  async function itemCarrinhoRBtoItemCarrinho(item: ItemCarrinhoResponseBody): Promise<ItemCarrinho> {
     const produtoEncontrado: Produto = (await buscarProduto(item.produto_ref)).datas!;
 
     return {
@@ -43,7 +43,7 @@ export const ItensPedidoProvider = ({ children }: { children: ReactNode }) => {
     try {
       const resultado = await CarrinhoService.listarCarrinho()
       const itens: ItemCarrinho[] = await Promise.all(resultado.data.map((item) => {
-        return toItemCarrinho(item);
+        return itemCarrinhoRBtoItemCarrinho(item);
       }))
       setCarrinho(itens);
       return successHookResponseByAxios<any>(resultado, 'buscar itens do carrinho do usuário')
@@ -56,24 +56,25 @@ export const ItensPedidoProvider = ({ children }: { children: ReactNode }) => {
     try {
       let resultadoHook
       if (isAutenticado) {
-        const resultado = await CarrinhoService.acaoCarrinho(item.id as string, (item.quantidade > 1)?item.quantidade:1);
+        const resultado = await CarrinhoService.acaoCarrinho(item.id as string, item.quantidade);
+        await carregarCarrinho()
         resultadoHook = successHookResponseByAxios<any>(resultado, 'executar ação de adicionar item ao carrinho');
       }
 
-      const itemExiste = carrinho.find(it => it.id === item.id);
-      setCarrinho(prev => {
-        if (!itemExiste) {
-          return [...prev, { ...item, quantidade: item.quantidade }];
-        }
-
-        return prev.map(it =>
-          it.id === item.id
-            ? { ...it, quantidade: it.quantidade + item.quantidade }
-            : it
-        );
-      });
-
+      
       if (!isAutenticado) {
+        const itemExiste = carrinho.find(it => it.id === item.id);
+        setCarrinho(prev => {
+          if (!itemExiste) {
+            return [...prev, { ...item, quantidade: item.quantidade }];
+          }
+  
+          return prev.map(it =>
+            it.id === item.id
+              ? { ...it, quantidade: it.quantidade + item.quantidade }
+              : it
+          );
+        });
         localStorage.setItem('carrinho', JSON.stringify(carrinho));
         resultadoHook = successHookResponse<any>({ message: 'executar ação de adicionar item ao carrinho com visitante', status: 200 });
       }
@@ -87,7 +88,6 @@ export const ItensPedidoProvider = ({ children }: { children: ReactNode }) => {
   const removerItem = async (item_id: string, produto_id: string) => {
     try {
       if (!isAutenticado) {
-        console.warn('usuário não está logado');
         setCarrinho(prev => prev.filter(item => item.id !== produto_id))
         localStorage.setItem('carrinho', JSON.stringify(carrinho));
         return successHookResponse<any>({ message: 'remover item do carrinho com visitante', status: 200 });
@@ -101,10 +101,11 @@ export const ItensPedidoProvider = ({ children }: { children: ReactNode }) => {
     }
   }
 
-  const alterarQuantidade = async (quantidade: number, item_id?: string, id_produto?: string) => {
+  const alterarQuantidade = async (quantidade: number, id_produto: string) => {
     try {
+      const it = carrinho.find(item => item.id === id_produto);
       if (quantidade <= 0) {
-        return await removerItem(item_id!, id_produto!);
+        return await removerItem(it?.id_item!, id_produto!);
       }
 
       if (!isAutenticado) {
@@ -118,10 +119,10 @@ export const ItensPedidoProvider = ({ children }: { children: ReactNode }) => {
       }
 
       if (isAutenticado) {
-        const resultado = await CarrinhoService.acaoCarrinho(id_produto!, quantidade);
+        const resultado = await CarrinhoService.atualizatQtdItem(it?.id_item!, quantidade);
         setCarrinho(prev =>
           prev.map(item =>
-            item.id_item === item_id ? { ...item, quantidade } : item
+            item.id_item === it?.id_item ? { ...item, quantidade } : item
           )
         );
         return successHookResponseByAxios<any>(resultado, 'alterar a quantidade de itens no carrinho')
@@ -142,7 +143,7 @@ export const ItensPedidoProvider = ({ children }: { children: ReactNode }) => {
         await CarrinhoService.limparCarrinho();
       }
       setCarrinho([]);
-      return successHookResponse<any>({ message: 'Sucesso ao limpar o carrinho', status: 200})
+      return successHookResponse<any>({ message: 'Sucesso ao limpar o carrinho', status: 200 })
     } catch (error) {
       return errorHookResponse<any>(error);
     }
