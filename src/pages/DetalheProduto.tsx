@@ -27,13 +27,14 @@ import {
 import { HttpStatusCode } from 'axios';
 import { createContext, useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
 import { useItensCarrinho } from '../contexts/ItensCarrinhoContext';
 import { useProdutosFavoritos } from '../contexts/ProdutosFavoritosContext';
 import { useProdutosGeral } from '../hooks/useProdutosGeral';
 import { useProdutosPaginados } from '../hooks/useProdutosPaginados';
+import { useNotificacao } from '../providers/NotificacaoProvider';
 import { colors } from '../theme/colors';
-import type { NotificationPlacement } from 'antd/es/notification/interface';
-import { useAuth } from '../contexts/AuthContext';
+import type { ItemCarrinho } from '../types/produto.type';
 
 const { Title, Text, Paragraph } = Typography;
 const { useBreakpoint } = Grid;
@@ -49,14 +50,6 @@ export function DetalhesProduto() {
   const screens = useBreakpoint();
 
   const [api, contextHolder] = notification.useNotification();
-
-  const openNotification = (placement: NotificationPlacement) => {
-    api.info({
-      message: 'Adicionado ao carrinho',
-      description: `Confira "${produto?.titulo}" no seu carrinho!`,
-      placement,
-    });
-  };
 
   const contextValue = useMemo(() => ({ name: 'Ant Design' }), []);
 
@@ -80,6 +73,8 @@ export function DetalhesProduto() {
       return
     }
   }
+
+  const notificacao = useNotificacao()
 
   useEffect(() => {
     if (id) buscarProduto(id)
@@ -229,10 +224,27 @@ export function DetalhesProduto() {
                     type="primary"
                     size="large"
                     icon={<ShoppingCartOutlined />}
-                    onClick={() => {
-                      if (produto) {
-                        adicionarItem(produto)
-                        openNotification('bottomRight')
+                    onClick={async (e) => {
+                      e.stopPropagation();
+                      const item: ItemCarrinho = {
+                        quantidade: quantity,
+                        ...produto!
+                      }
+                      const result = await adicionarItem(item)
+
+                      if (result.ok) {
+                        notificacao({
+                          message: `"${produto?.titulo}" adicionado ao carrinho!`,
+                          type: 'success',
+                          placement: 'bottom'
+                        })
+                      } else {
+                        notificacao({
+                          message: `Erro ao adicionar produto`,
+                          type: 'error',
+                          description: result.message,
+                          placement: 'bottom'
+                        })
                       }
                     }}
                     style={{

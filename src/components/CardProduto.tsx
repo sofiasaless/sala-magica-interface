@@ -166,18 +166,28 @@ export const CardProduto: React.FC<{ produto?: Produto, fav?: boolean }> = ({ pr
         <Button
           type="primary"
           icon={<ShoppingCartOutlined />}
-          onClick={(e) => {
+          onClick={async (e) => {
             e.stopPropagation();
             const item: ItemCarrinho = {
               quantidade: 1,
               ...produto!
             }
-            adicionarItem(item)
-            notificacao({
-              message: `"${produto?.titulo}" adicionado ao carrinho!`,
-              type: 'success',
-              placement: 'bottom'
-            })
+            const result = await adicionarItem(item)
+            
+            if (result.ok) {
+              notificacao({
+                message: `"${produto?.titulo}" adicionado ao carrinho!`,
+                type: 'success',
+                placement: 'bottom'
+              })
+            } else {
+              notificacao({
+                message: `Erro ao adicionar produto`,
+                type: 'error',
+                description: result.message,
+                placement: 'bottom'
+              })
+            }
           }}
           // disabled={!produto?.ativo}
           style={{

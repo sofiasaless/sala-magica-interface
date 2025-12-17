@@ -17,7 +17,6 @@ export const ProdutoService = {
   },
 
   async encontrarProdutoPorId(id: string) {
-    const { data } = await produtosApi.encontrarPorId(id);
-    return data
+    return await produtosApi.encontrarPorId(id);
   }
 }

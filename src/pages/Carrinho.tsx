@@ -29,6 +29,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { useItensCarrinho } from '../contexts/ItensCarrinhoContext';
 import { colors } from '../theme/colors';
 import type { ItemCarrinho } from '../types/produto.type';
+import { useNotificacao } from '../providers/NotificacaoProvider';
 
 const { Title, Text, Paragraph } = Typography;
 const { useBreakpoint } = Grid;
@@ -46,9 +47,15 @@ export const Carrinho = () => {
 
   const navigator = useNavigate()
 
-  const handleRemove = (productId: string) => {
-    removerItem(productId);
-    message.success('Item removido do carrinho');
+  const notificacao = useNotificacao()
+
+  const handleRemove = async (item_id: string, productId: string) => {
+    const resultado = await removerItem(item_id, productId);
+    notificacao({
+      message: resultado.message,
+      placement: 'bottom',
+      type: (resultado.ok)?'success':'error'
+    })
   };
 
   const handleWhatsAppCheckout = () => {
@@ -99,7 +106,7 @@ export const Carrinho = () => {
           max={10}
           value={record.quantidade}
           onChange={(value) => {
-            alterarQuantidade(record.id!, value!);
+            alterarQuantidade(value!, record.id_item!, record.id!);
           }}
           size="small"
         />
@@ -122,7 +129,7 @@ export const Carrinho = () => {
         <Popconfirm
           title="Remover item"
           description="Deseja remover este item do carrinho?"
-          onConfirm={() => handleRemove(record.id!)}
+          onConfirm={() => handleRemove(record.id_item!, record.id!)}
           okText="Sim"
           cancelText="Não"
           okButtonProps={{ danger: true }}
@@ -295,7 +302,7 @@ export const Carrinho = () => {
                               danger
                               size="small"
                               icon={<DeleteOutlined />}
-                              onClick={() => handleRemove(item.id!)}
+                              onClick={() => handleRemove(item.id_item!, item.id!)}
                             />
                           </Space>
                         </div>

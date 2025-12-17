@@ -20,10 +20,15 @@ export type PageProductResponse = {
   prevCursor: string
 }
 
-// export type ItemCarrinho = Omit<Produto, "ativo" | "dataAnuncio" | "materiais"> & {
-//   quantidade: number
-// }
-
 export type ItemCarrinho = Produto & {
+  id_item?: string,
   quantidade: number
+}
+
+export type ItemCarrinhoResponseBody = {
+  id: string,
+  produto_ref: string,
+  usuario_ref: string,
+  quantidade: number,
+  data_adicao: string,
 }
