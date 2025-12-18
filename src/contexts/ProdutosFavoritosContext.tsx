@@ -1,7 +1,7 @@
-import { createContext, useContext, useState, type ReactNode } from "react";
-import type { Produto } from "../types/produto.type";
-import { FavoritosService } from "../service/favorito.service";
 import type { AxiosResponse } from "axios";
+import { createContext, useContext, useState, type ReactNode } from "react";
+import { FavoritosService } from "../service/favorito.service";
+import type { Produto } from "../types/produto.type";
 
 interface ProdutosFavoritosContextType {
   produtosFavoritos: Produto[] | undefined,
@@ -15,7 +15,7 @@ interface ProdutosFavoritosContextType {
 
 const ProdutosFavoritosContext = createContext<ProdutosFavoritosContextType | undefined>(undefined);
 
-export const ProdutosFavoritosProvider = ({ children }: { children: ReactNode }) => {
+export const ProdutosFavoritosProvider = ({ children }: { children: ReactNode, watch: boolean }) => {
   const [produtosFavoritos, setProdutosFavoritos] = useState<Produto[] | undefined>(undefined)
 
   const [carregandoFavoritos, setCarregandoFavoritos] = useState<boolean>(false)
@@ -23,7 +23,6 @@ export const ProdutosFavoritosProvider = ({ children }: { children: ReactNode })
   const carregarProdutosFavoritos = async () => {
     if (produtosFavoritos !== undefined) return
     setCarregandoFavoritos(true);
-    console.info('carregando produtos favoritos .....')
     const resultado = await FavoritosService.listarProdutosFavoritados();
     setProdutosFavoritos(resultado);
     setCarregandoFavoritos(false);

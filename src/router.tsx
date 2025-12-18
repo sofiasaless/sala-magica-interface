@@ -17,9 +17,9 @@ import { ProdutosFavoritosProvider } from "./contexts/ProdutosFavoritosContext";
 export default function Rotas() {
   return (
     <AuthProvider>
-      <ProdutosFavoritosProvider>
-        <ItensPedidoProvider>
-          <CategoriasProdutoProvider>
+      <CategoriasProdutoProvider>
+        <ProdutosFavoritosProvider>
+          <ItensPedidoProvider>
             <BrowserRouter>
               <Routes>
                 <Route path="/" element={<Navbar />} >
@@ -39,9 +39,9 @@ export default function Rotas() {
                 <Route path="/cadastro" element={<Cadastro />} />
               </Routes>
             </BrowserRouter>
-          </CategoriasProdutoProvider>
-        </ItensPedidoProvider>
-      </ProdutosFavoritosProvider>
+          </ItensPedidoProvider>
+        </ProdutosFavoritosProvider>
+      </CategoriasProdutoProvider>
     </AuthProvider>
   )
 }

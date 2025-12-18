@@ -30,17 +30,17 @@ import {
   Typography
 } from 'antd';
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { CardEncomenda } from '../components/CardEncomenda';
 import { ItemNotificacao } from '../components/ItemNotificacao';
 import { NaoConectadoFeedback } from '../components/NaoConectadoFeedback';
-import { useProdutosFavoritos } from '../contexts/ProdutosFavoritosContext';
-import { colors } from '../theme/colors';
-import { formatarDataPtBR } from '../util/datas.util';
-import type { EncomendaResponseBody } from '../types/encomenda.type';
-import { EncomendaService } from '../service/encomenda.service';
-import { useNotificacao } from '../providers/NotificacaoProvider';
 import { useAuth } from '../contexts/AuthContext';
+import { useProdutosFavoritos } from '../contexts/ProdutosFavoritosContext';
+import { useNotificacao } from '../providers/NotificacaoProvider';
+import { EncomendaService } from '../service/encomenda.service';
+import { colors } from '../theme/colors';
+import type { EncomendaResponseBody } from '../types/encomenda.type';
+import { formatarDataPtBR } from '../util/datas.util';
 
 const { Title, Text } = Typography;
 const { useBreakpoint } = Grid;
@@ -68,17 +68,11 @@ export function Usuario() {
 
   const { usuario, isAutenticado } = useAuth()
 
-  if (!isAutenticado) {
-    return <NaoConectadoFeedback proposito='personalizar seu perfil na Sala Mágica!' />
-  }
-
   const handleAtualizarPerfil = () => {
     message.success('Perfil atualizado com sucesso!');
   };
 
   const { produtosFavoritos } = useProdutosFavoritos();
-
-  const navigator = useNavigate()
 
   const [usuarioParaAlterar, setUsuarioParaAlterar] = useState(usuario)
 
@@ -114,8 +108,6 @@ export function Usuario() {
       });
     }
   }, [usuarioParaAlterar, form]);
-
-
 
   const tabItems = [
     {
@@ -208,9 +200,11 @@ export function Usuario() {
             </div>
           }
         >
-          <Button type="primary" onClick={() => navigator('/encomenda')}>
-            Fazer Encomenda
-          </Button>
+          <Link to={"/encomenda"}>
+            <Button type="primary">
+              Fazer Encomenda
+            </Button>
+          </Link>
         </Empty>
       )
     },
@@ -233,6 +227,10 @@ export function Usuario() {
       )
     }
   ];
+
+  if (!isAutenticado) {
+    return <NaoConectadoFeedback proposito='personalizar seu perfil na Sala Mágica!' />
+  }
 
   return (
     <div style={{ maxWidth: 1000, margin: '0 auto' }}>
