@@ -28,12 +28,22 @@ export type ColunaProduto = {
   title: string;
   dataIndex: string;
   key: string;
+  render: (_: unknown, record: Produto) => JSX.Element;
+} | {
+  title: string;
+  dataIndex: string;
+  key: string;
   render: (preco: number) => string;
 } | {
   title: string;
   dataIndex: string;
   key: string;
-  render: (inStock: boolean, record: Produto) => JSX.Element;
+  render: (ativo: boolean) => JSX.Element;
+} | {
+  title: string;
+  dataIndex: string;
+  key: string;
+  render: (categoria_reference: string) => JSX.Element;
 } | {
   title: string;
   key: string;

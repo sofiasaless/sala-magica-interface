@@ -1,8 +1,13 @@
-import { Col, Form, Input, InputNumber, Modal, Row, Select, Switch } from "antd"
+import { PlusOutlined } from "@ant-design/icons"
+import { Card, Col, Form, Input, InputNumber, Modal, Row, Select, Switch, Upload, type UploadFile } from "antd"
 import type React from "react"
+import { useEffect, useState } from "react"
+import { useProdutosGeral } from "../hooks/useProdutosGeral"
+import { useNotificacao } from "../providers/NotificacaoProvider"
 import type { CategoriaResponseBody } from "../types/cateogiras.type"
 import type { Produto } from "../types/produto.type"
-import { useEffect } from "react"
+import { CloudinaryService } from "../service/cloudnary.service"
+import type { HookResponse } from "../types/hookResponse.type"
 
 export const ModalProdutoAdmin: React.FC<{
   editingProduct: Produto | null,
@@ -11,15 +16,106 @@ export const ModalProdutoAdmin: React.FC<{
   categorias: CategoriaResponseBody[] | undefined
 }> = ({ editingProduct, isModalOpen, categorias, fecharModal }) => {
 
-  const [form] = Form.useForm();
+  const [form] = Form.useForm<Partial<Produto>>();
+
+  const notificacao = useNotificacao()
+
+  const { cadastrarProduto, atualizarProduto } = useProdutosGeral()
+
+  const handleUpNewImages = async () => {
+    let imgs: string[] = []
+
+    const novasImagens = arquivosImgs
+      .filter(file => !!file.originFileObj)
+      .map(file => file.originFileObj as File);
+
+    if (novasImagens.length > 0) {
+      novasImagens.map(async (img) => {
+        imgs.push(await CloudinaryService.enviarImagem(img))
+      })
+    }
+
+    // verificando se as imagens vindas da API passaram por alguma exclusão
+    const imagensSobreviventes = editingProduct?.imagens?.filter(img => {
+      if (arquivosImgs.find(imgObj => imgObj.url === img)) return img;
+    })
+    imgs.concat(imagensSobreviventes!)
+
+    let imgCapa: string = ''
+
+    // verificando se houve alteração da imagem de capa
+    if (arquivoImgCapa.length === 0) {
+      imgCapa = '';
+    } else if (!!arquivoImgCapa[0].originFileObj) {
+      imgCapa = await CloudinaryService.enviarImagem(arquivoImgCapa[0].originFileObj as File)
+    } else {
+      imgCapa = arquivoImgCapa[0].url as string
+    }
+
+    return {
+      imgCapa: imgCapa,
+      imgs: imgs
+    }
+
+  }
+
+  const [isSalvando, setIsSalvando] = useState<boolean>(false)
+  const handleSalvar = async () => {
+    try {
+      setIsSalvando(true)
+
+      const values = form.getFieldsValue()
+
+      const imgResponse = await handleUpNewImages();
+
+      const payload: Partial<Produto> = {
+        ...values,
+        imagemCapa: imgResponse.imgCapa,
+        imagens: imgResponse.imgs
+      }
+
+      let res: HookResponse<Partial<Produto>> = {} as HookResponse<Partial<Produto>>
+      // se chegar um produto visualizar, significa que se trata da atualização de um produto
+      if (editingProduct) {
+        res = await atualizarProduto(payload, editingProduct.id as string);
+      } else {
+        res = await cadastrarProduto(payload)
+      }
+
+      notificacao({
+        message: res.message,
+        type: (res.ok) ? 'success' : 'error'
+      })
+    } catch (error: any) {
+      notificacao({
+        message: error.message,
+        type: 'error'
+      })
+    } finally {
+      setIsSalvando(false)
+    }
+  }
+
+  const [arquivoImgCapa, setArquivoImgCapa] = useState<UploadFile[]>([]);
+  const [arquivosImgs, setArquivosImgs] = useState<UploadFile[]>([]);
+
+
 
   useEffect(() => {
     if (editingProduct) {
       form.setFieldsValue({
         ...editingProduct,
-        image: editingProduct?.imagemCapa
+        imagemCapa: editingProduct?.imagemCapa
       });
+
+      setArquivoImgCapa([{ uid: '1', name: 'image.png', status: 'done', url: form.getFieldValue('imagemCapa') }]);
+      const formatados: UploadFile<any>[] = (form.getFieldValue('imagens') as string[]).map((img, indice) => {
+        return { uid: indice.toString(), name: 'image.png', status: 'done', url: img }
+      })
+      setArquivosImgs(formatados);
     } else {
+      setArquivoImgCapa([])
+      setArquivosImgs([])
       form.resetFields()
     }
   }, [editingProduct])
@@ -28,11 +124,14 @@ export const ModalProdutoAdmin: React.FC<{
     <Modal
       title={editingProduct ? 'Editar Produto' : 'Novo Produto'}
       open={isModalOpen}
-      // onOk={handleSaveProduct}
-      onCancel={() => fecharModal(false)}
+      onOk={handleSalvar}
+      onCancel={() => {
+        fecharModal(false)
+      }}
       okText="Salvar"
       cancelText="Cancelar"
       width={600}
+      loading={isSalvando}
     >
       <Form form={form} layout="vertical">
         <Form.Item
@@ -47,7 +146,13 @@ export const ModalProdutoAdmin: React.FC<{
           label="Descrição"
           rules={[{ required: true }]}
         >
-          <Input.TextArea rows={3} />
+          <Input.TextArea rows={2} />
+        </Form.Item>
+        <Form.Item
+          name="modelagem"
+          label="Modelagem e confecção"
+        >
+          <Input.TextArea rows={4} />
         </Form.Item>
         <Row gutter={16}>
           <Col xs={12}>
@@ -66,19 +171,6 @@ export const ModalProdutoAdmin: React.FC<{
             </Form.Item>
           </Col>
           <Col xs={12}>
-            <Form.Item name="originalPrice" label="Preço Original (Promoção)">
-              <InputNumber
-                prefix="R$"
-                size="large"
-                style={{ width: '100%' }}
-                min={0}
-                precision={2}
-              />
-            </Form.Item>
-          </Col>
-        </Row>
-        <Row gutter={16}>
-          <Col xs={12}>
             <Form.Item
               name="categoria_reference"
               label="Categoria"
@@ -90,9 +182,11 @@ export const ModalProdutoAdmin: React.FC<{
               />
             </Form.Item>
           </Col>
+        </Row>
+        <Row gutter={16}>
           <Col xs={12}>
             <Form.Item
-              name="inStock"
+              name="ativo"
               label="Disponível"
               valuePropName="checked"
               initialValue={true}
@@ -101,13 +195,43 @@ export const ModalProdutoAdmin: React.FC<{
             </Form.Item>
           </Col>
         </Row>
-        <Form.Item name="image" label="URL da Imagem" rules={[{ required: true }]}>
-          <Input size="large" placeholder="https://..." />
-        </Form.Item>
+        <Card size="default" title="Imagem de capa" style={{ marginTop: 16 }}>
+          <Upload
+            listType="picture-card"
+            fileList={arquivoImgCapa}
+            maxCount={1}
+            beforeUpload={() => false}
+            onChange={({ fileList }) => {
+              setArquivoImgCapa(fileList.slice(-1));
+            }}
+          >
+            <button style={{ border: 0, background: 'none' }} type="button">
+              <PlusOutlined />
+              <div style={{ marginTop: 8 }}>Capa do produto</div>
+            </button>
+          </Upload>
+        </Card>
+        <Card size="small" title="Imagens" style={{ marginTop: 16 }}>
+          <Upload
+            listType="picture-card"
+            multiple
+            beforeUpload={() => false}
+            fileList={arquivosImgs}
+            onChange={({ fileList }) => {
+              setArquivosImgs(fileList);
+            }}
+          >
+            <button style={{ border: 0, background: 'none' }} type="button">
+              <PlusOutlined />
+              <div style={{ marginTop: 8 }}>Imagens do produto</div>
+            </button>
+          </Upload>
+        </Card>
         <Row gutter={16}>
           <Col xs={12}>
             <Form.Item name="altura" label="Altura (cm)">
               <InputNumber
+                name="altura"
                 size="large"
                 min={0}
                 style={{ width: '100%' }}
@@ -117,6 +241,7 @@ export const ModalProdutoAdmin: React.FC<{
           <Col xs={12}>
             <Form.Item name="comprimento" label="Compimento (cm)">
               <InputNumber
+                name="comprimento"
                 size="large"
                 min={0}
                 style={{ width: '100%' }}

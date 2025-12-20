@@ -20,12 +20,12 @@ export type EncomendaResponseBody = {
   referencias?: string,
   solicitante: string,
   status: EncomendaStatus,
-  data_envio: string
+  dataEncomenda: string
 }
 
 export type EncomendaStatus = 'EM ANÁLISE' | 'EM PRODUÇÃO' | 'CANCELADO' | 'FINALIZADO'
 
 export type EncomendaRequestBody = Omit<
   EncomendaResponseBody, 
-  "data_envio" | "id" | "status"
+  "dataEncomenda" | "id" | "status"
 >

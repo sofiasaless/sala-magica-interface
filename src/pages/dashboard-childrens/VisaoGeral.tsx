@@ -6,6 +6,7 @@ import { colors } from "../../theme/colors";
 import type { EncomendaResponseBody } from "../../types/encomenda.type";
 import type { ColunaEncomenda } from "./types";
 import { useUsuarios } from "../../hooks/useUsuarios";
+import { useAuth } from "../../contexts/AuthContext";
 
 export const VisaoGeral: React.FC<{
   encomendas: EncomendaResponseBody[]
@@ -20,6 +21,8 @@ export const VisaoGeral: React.FC<{
   const [qtdUltimoMes, setQtdUltimoMes] = useState<number>()
   const [qtdUsuarios, setQtdUsuarios] = useState<number>()
 
+  const { isAutenticado } = useAuth()
+
   useEffect(() => {
     const carregarInfos = async () => {
       // total do ultimo mes
@@ -33,7 +36,7 @@ export const VisaoGeral: React.FC<{
     }
 
     carregarInfos();
-  }, [])
+  }, [isAutenticado])
 
   const stats = [
     { title: 'Produtos Ativos', value: qtdProdutos, icon: <ShoppingOutlined />, color: colors.primary },

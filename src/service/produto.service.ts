@@ -45,5 +45,17 @@ export const ProdutoService = {
 
   async encontrarProdutoPorId(id: string) {
     return await api.get<Produto>(`/products/find/${id}`);
+  },
+
+  async cadastrar(body: Partial<Produto>) {
+    return await api.post<Partial<Produto>>(`/products/admin`, body);
+  },
+
+  async atualizar(body: Partial<Produto>, id_produto: string) {
+    return await api.put(`/products/admin/update/${id_produto}`, body);
+  },
+
+  async excluir(id_produto: string) {
+    return await api.delete(`/products/admin/delete/${id_produto}`)
   }
 }

@@ -7,14 +7,18 @@ import type { ContadorQuantidade } from "../types/contador.type";
 
 export function useEncomendas() {
   const [encomendasAdmin, setEncomendasAdmin] = useState<EncomendaResponseBody[]>([])
+  const [carregandoEncomendas, setCarregandoEncomendas] = useState<boolean>(false)
 
   async function carregarTodasEncomendas() {
     try {
+      setCarregandoEncomendas(true)
       const resultado = await EncomendaService.encontrarTodas();
       setEncomendasAdmin(resultado.data);
       return successHookResponseByAxios<EncomendaResponseBody[]>(resultado, 'buscar encomendas para o admin')
     } catch (error) {
       return errorHookResponse<EncomendaResponseBody[]>(error);
+    } finally {
+      setCarregandoEncomendas(false)
     }
   }
 
@@ -50,7 +54,8 @@ export function useEncomendas() {
     encomendasAdmin,
     enviar,
     encontrarPorUsuario,
-    contarEncomendas
+    contarEncomendas,
+    carregandoEncomendas
   }
 
 }

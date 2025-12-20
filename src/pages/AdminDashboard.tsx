@@ -14,19 +14,22 @@ import {
   Grid,
   Popconfirm,
   Space,
-  Switch,
   Tabs,
   Tag,
   Typography
 } from 'antd';
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { ModalCategoriaAdmin } from '../components/ModalCategoriaAdmin';
 import { ModalEncomendaAdmin } from '../components/ModalEncomendaAdmin';
 import { ModalProdutoAdmin } from '../components/ModalProdutoAdmin';
 import { useAuth } from '../contexts/AuthContext';
 import { useCategoriasProduto } from '../contexts/CategoriasProdutoContext';
 import { useEncomendas } from '../hooks/useEncomendas';
+import { useProdutosGeral } from '../hooks/useProdutosGeral';
 import { useProdutosPaginados } from '../hooks/useProdutosPaginados';
+import { useUsuarios } from '../hooks/useUsuarios';
+import { useNotificacao } from '../providers/NotificacaoProvider';
 import { colors } from '../theme/colors';
 import type { CategoriaResponseBody } from '../types/cateogiras.type';
 import type { EncomendaResponseBody, EncomendaStatus } from '../types/encomenda.type';
@@ -37,13 +40,14 @@ import { Conteudo } from './dashboard-childrens/Conteudo';
 import { Encomendas } from './dashboard-childrens/Encomendas';
 import { Produtos } from './dashboard-childrens/Produtos';
 import { VisaoGeral } from './dashboard-childrens/VisaoGeral';
-import { useProdutosGeral } from '../hooks/useProdutosGeral';
 
 const { Title, Text } = Typography;
 const { useBreakpoint } = Grid;
 
 const AdminDashboard = () => {
   const screens = useBreakpoint();
+
+  const navigator = useNavigate()
 
   const { paginar, produtosPaginados } = useProdutosPaginados()
 
@@ -60,15 +64,17 @@ const AdminDashboard = () => {
 
   const [editingCategory, setEditingCategory] = useState<CategoriaResponseBody | null>(null);
 
-  const { carregarTodasEncomendas, encomendasAdmin } = useEncomendas()
+  const { carregarTodasEncomendas, encomendasAdmin, carregandoEncomendas } = useEncomendas()
 
   const { isAutenticado } = useAuth()
 
   const { contarTotalProdutos, totalProdutos } = useProdutosGeral()
 
-  useEffect(() => {
-    carregarTodasEncomendas()
-  }, [isAutenticado])
+  const { encontrarUsuarioPorId } = useUsuarios()
+
+  const { excluirProduto } = useProdutosGeral()
+
+  const [pageSize] = useState<number>(8)
 
   const handleAddProduct = () => {
     setEditingProduct(null);
@@ -95,6 +101,43 @@ const AdminDashboard = () => {
     setCategoryModalVisible(true);
   }
 
+  const handleDeleteProduct = async (id: string) => {
+    const res = await excluirProduto(id);
+    notificacao({
+      message: res.message,
+      type: (res.ok) ? 'success' : 'error'
+    })
+  }
+
+  const notificacao = useNotificacao()
+
+  const [solicitantes, setSolicitantes] = useState<Map<string, string>>(new Map)
+
+  const carregarSolicitantes = async () => {
+    let map: Map<string, string> = new Map();
+
+    encomendasAdmin.map(async (enc) => {
+      let nome: string = ''
+      if (map.has(enc.solicitante)) return;
+      const res = await encontrarUsuarioPorId(enc.solicitante);
+      if (res.ok) {
+        nome = res.datas?.nome as string || 'Não identificado'
+      } else {
+        nome = 'Não identificado'
+      }
+      map.set(enc.solicitante, nome)
+    })
+    setSolicitantes(map);
+  }
+
+  useEffect(() => {
+    carregarTodasEncomendas()
+  }, [isAutenticado])
+
+  useEffect(() => {
+    if (!carregandoEncomendas) carregarSolicitantes();
+  }, [carregandoEncomendas])
+
   const productColumns = [
     {
       title: 'Produto',
@@ -109,7 +152,7 @@ const AdminDashboard = () => {
           />
           <div>
             <Text strong style={{ display: 'block' }}>{record.titulo}</Text>
-            <Tag color="cyan">{encontrarNomePorId(record.categoria_reference)}</Tag>
+            <Text>{record.altura}cm x {record.comprimento}cm</Text>
           </div>
         </Space>
       )
@@ -124,14 +167,13 @@ const AdminDashboard = () => {
       title: 'Status',
       dataIndex: 'ativo',
       key: 'ativo',
-      render: (ativo: boolean, record: Produto) => (
-        <Switch
-          checked={ativo}
-          onChange={() => console.info(record)}
-          checkedChildren="Ativo"
-          unCheckedChildren="Inativo"
-        />
-      )
+      render: (ativo: boolean) => <Tag color={(ativo)?'geekblue':'processing'}>{(ativo)?'Ativo':'Inativo'}</Tag>
+    },
+    {
+      title: 'Categoria',
+      dataIndex: 'categoria_reference',
+      key: 'categoria_reference',
+      render: (categoria_reference: string) => <Tag color="cyan">{encontrarNomePorId(categoria_reference)}</Tag>
     },
     {
       title: 'Ações',
@@ -141,7 +183,7 @@ const AdminDashboard = () => {
           <Button
             type="text"
             icon={<EyeOutlined />}
-          // onClick={() => onNavigate('product')}
+            onClick={() => navigator(`/produto/${record.id}`)}
           />
           <Button
             type="text"
@@ -150,7 +192,7 @@ const AdminDashboard = () => {
           />
           <Popconfirm
             title="Remover produto?"
-            // onConfirm={() => handleDeleteProduct(record.id)}
+            onConfirm={() => handleDeleteProduct(record.id as string)}
             okText="Sim"
             cancelText="Não"
           >
@@ -171,7 +213,8 @@ const AdminDashboard = () => {
     {
       title: 'Cliente',
       dataIndex: 'solicitante',
-      key: 'solicitante'
+      key: 'solicitante',
+      render: (solicitante: string) => <Text>{solicitantes.get(solicitante) ?? 'Carregando...'}</Text>
     },
     {
       title: 'Categoria',
@@ -220,7 +263,7 @@ const AdminDashboard = () => {
         </span>
       ),
       children: (
-        <VisaoGeral navegar={setTabAtiva} encomendas={encomendasAdmin} encomendasColunas={encomendasColunas} handleViewOrder={handleViewOrder} qtdProdutos={totalProdutos}/>
+        <VisaoGeral navegar={setTabAtiva} encomendas={encomendasAdmin} encomendasColunas={encomendasColunas} handleViewOrder={handleViewOrder} qtdProdutos={totalProdutos} />
       )
     },
     {
@@ -233,7 +276,28 @@ const AdminDashboard = () => {
         </span>
       ),
       children: (
-        <Produtos handleAddProduct={handleAddProduct} productColumns={productColumns} produtos={produtosPaginados?.get('')?.produtos} />
+        <Produtos
+          paginationProps={{
+            pageSize: pageSize, totalProdutos: totalProdutos,
+            paginarAdiante: () => paginar({
+              limit: pageSize,
+              params: {
+                navigation: 'next',
+                cursor: produtosPaginados?.get('')?.nextCursor,
+                cursorPrev: produtosPaginados?.get('')?.prevCursor
+              }
+            }),
+            paginarVoltar: () => paginar({
+              limit: pageSize,
+              params: {
+                navigation: 'last',
+                cursor: produtosPaginados?.get('')?.nextCursor,
+                cursorPrev: produtosPaginados?.get('')?.prevCursor
+              }
+            })
+          }}
+          handleAddProduct={handleAddProduct} productColumns={productColumns} produtos={produtosPaginados?.get('')?.produtos}
+        />
       )
     },
     {
@@ -264,6 +328,7 @@ const AdminDashboard = () => {
 
   useEffect(() => {
     paginar({
+      limit: pageSize,
       params: {
         navigation: 'first'
       }
@@ -289,7 +354,7 @@ const AdminDashboard = () => {
       <ModalProdutoAdmin isModalOpen={isModalOpen} editingProduct={editingProduct} categorias={categoriasProdutos} fecharModal={setIsModalOpen} />
 
       {/* modal de detalhes da encomenda */}
-      <ModalEncomendaAdmin orderModalVisible={orderModalVisible} fecharModal={setOrderModalVisible} selectedOrder={selectedOrder} />
+      <ModalEncomendaAdmin orderModalVisible={orderModalVisible} fecharModal={setOrderModalVisible} selectedOrder={selectedOrder} solicitantes={solicitantes} />
 
       {/* modal de edição e adição de categorias */}
       <ModalCategoriaAdmin open={categoryModalVisible} editingCategory={editingCategory} fecharModal={setCategoryModalVisible} />

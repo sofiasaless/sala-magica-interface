@@ -5,16 +5,21 @@ import { colors } from "../theme/colors";
 import type { EncomendaResponseBody } from "../types/encomenda.type";
 import React, { useState } from "react";
 import { getStatusColor, getStatusStep } from "../util/encomenda.util";
+import { formatarDataHoraAPI } from "../util/datas.util";
+import { useCategoriasProduto } from "../contexts/CategoriasProdutoContext";
 
 const { Text, Paragraph } = Typography;
 
 export const ModalEncomendaAdmin: React.FC<{
   orderModalVisible: boolean,
   selectedOrder: EncomendaResponseBody | null,
-  fecharModal: (state: boolean) => void
-}> = ({orderModalVisible, selectedOrder, fecharModal}) => {
+  fecharModal: (state: boolean) => void,
+  solicitantes: Map<string, string>
+}> = ({orderModalVisible, selectedOrder, fecharModal, solicitantes}) => {
 
   const [isGeneratingResponse, setIsGeneratingResponse] = useState(false);
+
+  const { encontrarNomePorId } = useCategoriasProduto();
 
   return (
     <Modal
@@ -59,16 +64,16 @@ export const ModalEncomendaAdmin: React.FC<{
                 <Space direction="vertical" style={{ width: '100%' }}>
                   <div>
                     <Text type="secondary">Cliente:</Text>
-                    <Text strong style={{ marginLeft: 8 }}>{selectedOrder.solicitante}</Text>
+                    <Text strong style={{ marginLeft: 8 }}>{solicitantes.get(selectedOrder.solicitante) ?? 'Carregando...'}</Text>
                   </div>
                   <div>
                     <Text type="secondary">Categoria:</Text>
-                    <Tag color="cyan" style={{ marginLeft: 8 }}>{selectedOrder.categoria_reference}</Tag>
+                    <Tag color="cyan" style={{ marginLeft: 8 }}>{encontrarNomePorId(selectedOrder.categoria_reference)}</Tag>
                   </div>
                   <div>
                     <Text type="secondary">Data do Pedido:</Text>
                     <Text style={{ marginLeft: 8 }}>
-                      {new Date(selectedOrder.data_envio).toLocaleDateString('pt-BR')}
+                      {formatarDataHoraAPI(selectedOrder.dataEncomenda)}
                     </Text>
                   </div>
                   {(selectedOrder.altura || selectedOrder.comprimento) && (
