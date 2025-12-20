@@ -23,41 +23,42 @@ export const ModalProdutoAdmin: React.FC<{
   const { cadastrarProduto, atualizarProduto } = useProdutosGeral()
 
   const handleUpNewImages = async () => {
-    let imgs: string[] = []
+    let imgs: string[] = [];
 
     const novasImagens = arquivosImgs
       .filter(file => !!file.originFileObj)
       .map(file => file.originFileObj as File);
 
     if (novasImagens.length > 0) {
-      novasImagens.map(async (img) => {
-        imgs.push(await CloudinaryService.enviarImagem(img))
-      })
+      imgs = await Promise.all(
+        novasImagens.map(img => CloudinaryService.enviarImagem(img))
+      );
     }
 
-    // verificando se as imagens vindas da API passaram por alguma exclusão
-    const imagensSobreviventes = editingProduct?.imagens?.filter(img => {
-      if (arquivosImgs.find(imgObj => imgObj.url === img)) return img;
-    })
-    imgs.concat(imagensSobreviventes!)
+    const imagensSobreviventes =
+      editingProduct?.imagens?.filter(img =>
+        arquivosImgs.some(imgObj => imgObj.url === img)
+      ) ?? [];
 
-    let imgCapa: string = ''
+    imgs = imgs.concat(imagensSobreviventes);
 
-    // verificando se houve alteração da imagem de capa
-    if (arquivoImgCapa.length === 0) {
-      imgCapa = '';
-    } else if (!!arquivoImgCapa[0].originFileObj) {
-      imgCapa = await CloudinaryService.enviarImagem(arquivoImgCapa[0].originFileObj as File)
-    } else {
-      imgCapa = arquivoImgCapa[0].url as string
+    let imgCapa = '';
+
+    if (arquivoImgCapa.length > 0) {
+      if (arquivoImgCapa[0].originFileObj) {
+        imgCapa = await CloudinaryService.enviarImagem(
+          arquivoImgCapa[0].originFileObj as File
+        );
+      } else {
+        imgCapa = arquivoImgCapa[0].url as string;
+      }
     }
 
     return {
-      imgCapa: imgCapa,
-      imgs: imgs
-    }
-
-  }
+      imgCapa,
+      imgs
+    };
+  };
 
   const [isSalvando, setIsSalvando] = useState<boolean>(false)
   const handleSalvar = async () => {
@@ -73,6 +74,8 @@ export const ModalProdutoAdmin: React.FC<{
         imagemCapa: imgResponse.imgCapa,
         imagens: imgResponse.imgs
       }
+
+      console.info(payload)
 
       let res: HookResponse<Partial<Produto>> = {} as HookResponse<Partial<Produto>>
       // se chegar um produto visualizar, significa que se trata da atualização de um produto

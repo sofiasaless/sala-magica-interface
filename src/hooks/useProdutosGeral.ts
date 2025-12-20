@@ -28,6 +28,7 @@ export function useProdutosGeral() {
 
   async function cadastrarProduto(form: Partial<Produto>) {
     try {
+      console.info('formulario no hook ', form)
       const resultado = await ProdutoService.cadastrar(form);
       return successHookResponseByAxios<Partial<Produto>>(resultado, 'publicar novo produto na plataforma')
     } catch (error) {
@@ -37,6 +38,7 @@ export function useProdutosGeral() {
 
   async function atualizarProduto(form: Partial<Produto>, id_produto: string) {
     try {
+      console.info('formulario no hook ATUALIZAR ', form)
       const resultado = await ProdutoService.atualizar(form, id_produto);
       return successHookResponseByAxios<Partial<Produto>>(resultado, 'atualizar produto na plataforma')
     } catch (error) {

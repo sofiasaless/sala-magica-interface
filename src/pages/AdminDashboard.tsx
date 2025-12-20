@@ -107,6 +107,12 @@ const AdminDashboard = () => {
       message: res.message,
       type: (res.ok) ? 'success' : 'error'
     })
+    await paginar({
+      limit: pageSize,
+      params: {
+        navigation: 'first'
+      }
+    })
   }
 
   const notificacao = useNotificacao()
