@@ -2,6 +2,7 @@ import type { EncomendaResponseBody } from "../types/encomenda.type";
 
 export function getStatusColor (status: EncomendaResponseBody['status']) {
   switch (status) {
+    case 'NOVA': return 'blue-inverse';
     case 'EM ANÁLISE': return 'orange';
     case 'EM PRODUÇÃO': return 'purple';
     case 'FINALIZADO': return 'green';
@@ -17,6 +18,7 @@ export function getStatusStep (status: EncomendaResponseBody['status']) {
     case 'EM PRODUÇÃO': return 1;
     case 'FINALIZADO': return 2;
     case 'CANCELADO': return -1;
+    case 'NOVA': return -1;
     default: return 0;
   }
 };

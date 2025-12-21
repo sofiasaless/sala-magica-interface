@@ -32,10 +32,10 @@ import { useAuth } from '../contexts/AuthContext';
 import { useCategoriasProduto } from '../contexts/CategoriasProdutoContext';
 import { useEncomendas } from '../hooks/useEncomendas';
 import { useNotificacao } from '../providers/NotificacaoProvider';
-import { AiHelper } from '../service/ai-helper.service';
 import { CloudinaryService } from '../service/cloudnary.service';
 import { colors } from '../theme/colors';
 import type { EncomendaRequestBody } from '../types/encomenda.type';
+import { AiHelperService } from '../service/ai-helper.service';
 
 const { Title, Text, Paragraph } = Typography;
 const { TextArea } = Input;
@@ -129,7 +129,7 @@ export function FormularioEncomenda() {
 
   const handleAISuggestion = async () => {
     setIsGeneratingSuggestion(true)
-    const resultado = await AiHelper.sugerirDescricaoEncomenda({
+    const resultado = await AiHelperService.sugerirDescricaoEncomenda({
       categoria: encontrarNomePorId(form.getFieldValue('categoria_reference'))!,
       descricaoInicial: form.getFieldValue('descricao')
     })

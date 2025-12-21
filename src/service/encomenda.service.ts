@@ -1,5 +1,5 @@
 import { api } from "../api/axios";
-import type { EncomendaRequestBody, EncomendaResponseBody, EncomendaStatus } from "../types/encomenda.type";
+import type { EncomendaRequestBody, EncomendaResponseBody, EncomendaStatus, EncomendaUpdateRequestBody } from "../types/encomenda.type";
 
 export interface OrderFilterProps {
   ultimoMes?: boolean,
@@ -27,6 +27,10 @@ export const EncomendaService = {
       if (filtro.status) querys += `status=${filtro.status}`
     }
     
-    return api.get<{total: number}>(`/orders/admin/count${querys}`)
+    return await api.get<{total: number}>(`/orders/admin/count${querys}`)
+  },
+
+  async atualizar(encomendaBody: Partial<EncomendaUpdateRequestBody>, id_encomenda: string) {
+    return await api.put(`/orders/admin/update/${id_encomenda}`, encomendaBody);
   }
 }

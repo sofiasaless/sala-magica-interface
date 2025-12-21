@@ -36,8 +36,8 @@ import { ItemNotificacao } from '../components/ItemNotificacao';
 import { NaoConectadoFeedback } from '../components/NaoConectadoFeedback';
 import { useAuth } from '../contexts/AuthContext';
 import { useProdutosFavoritos } from '../contexts/ProdutosFavoritosContext';
+import { useEncomendas } from '../hooks/useEncomendas';
 import { useNotificacao } from '../providers/NotificacaoProvider';
-import { EncomendaService } from '../service/encomenda.service';
 import { colors } from '../theme/colors';
 import type { EncomendaResponseBody } from '../types/encomenda.type';
 import { formatarDataPtBR } from '../util/datas.util';
@@ -79,8 +79,10 @@ export function Usuario() {
   const [encomendas, setEncomendas] = useState<EncomendaResponseBody[] | undefined>()
   const floatNotificacao = useNotificacao();
 
+  const { encontrarPorUsuario } = useEncomendas()
+
   const handleListarEncomendas = async () => {
-    const resultado = await EncomendaService.encontrarPorUsuario()
+    const resultado = await encontrarPorUsuario()
 
     if (resultado.ok) {
       setEncomendas(resultado.datas)

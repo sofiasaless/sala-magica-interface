@@ -1,12 +1,16 @@
 import { BulbOutlined, CheckCircleOutlined, ClockCircleOutlined, FileTextOutlined, LoadingOutlined, RocketOutlined, SendOutlined, StopOutlined, ThunderboltOutlined } from "@ant-design/icons";
 import { Alert, Button, Card, Col, Divider, Image, Modal, Popconfirm, Row, Space, Steps, Tag, Typography } from "antd";
 import TextArea from "antd/es/input/TextArea";
-import { colors } from "../theme/colors";
-import type { EncomendaResponseBody } from "../types/encomenda.type";
-import React, { useState } from "react";
-import { getStatusColor, getStatusStep } from "../util/encomenda.util";
-import { formatarDataHoraAPI } from "../util/datas.util";
+import React, { useEffect, useState } from "react";
 import { useCategoriasProduto } from "../contexts/CategoriasProdutoContext";
+import { useEncomendas } from "../hooks/useEncomendas";
+import { useNotificacoes } from "../hooks/useNotificacao";
+import { useNotificacao } from "../providers/NotificacaoProvider";
+import { AiHelperService } from "../service/ai-helper.service";
+import { colors } from "../theme/colors";
+import type { EncomendaResponseBody, EncomendaStatus } from "../types/encomenda.type";
+import { formatarDataHoraAPI } from "../util/datas.util";
+import { getStatusColor, getStatusStep } from "../util/encomenda.util";
 
 const { Text, Paragraph } = Typography;
 
@@ -20,6 +24,67 @@ export const ModalEncomendaAdmin: React.FC<{
   const [isGeneratingResponse, setIsGeneratingResponse] = useState(false);
 
   const { encontrarNomePorId } = useCategoriasProduto();
+
+  const { ataulizarEncomenda } = useEncomendas()
+
+  const { enviarNotRespostaEncomenda, isEnviandoResp } = useNotificacoes()
+
+  const notificacao = useNotificacao()
+
+  const [status, setStatus] = useState<EncomendaStatus>('NOVA')
+
+  const [respota, setResposta] = useState<string>('')
+
+  const handleGerarRespostaComIA = async () => {
+    setIsGeneratingResponse(true)
+    if (selectedOrder) {
+      const hookRes = await AiHelperService.sugerirRespostaEncomenda({
+        categoria: encontrarNomePorId(selectedOrder?.categoria_reference) as string,
+        cliente_nome: solicitantes.get(selectedOrder.solicitante) as string,
+        descricao_encomenda: selectedOrder.descricao,
+        status_encomenda: status
+      })
+
+      if (hookRes.ok) setResposta(hookRes.datas?.sugestao!);
+      notificacao({
+        message: hookRes.message,
+        type: (hookRes.ok)?'success':'error'
+      })
+    }
+    setIsGeneratingResponse(false)
+  }
+
+  const handleAtualizarStatusEncomenda = async (status: EncomendaStatus, id_encomenda: string) => {
+    const hookRes = await ataulizarEncomenda({ status: status }, id_encomenda);
+    notificacao({
+      message: hookRes.message,
+      type: (hookRes.ok)?'success':'error'
+    })
+    if (hookRes.ok && selectedOrder) {
+      setStatus(status)
+    }
+  }
+
+  const handleResponderEncomenda = async () => {
+    const hookRes = await enviarNotRespostaEncomenda({
+      order: {
+        solicitante: selectedOrder?.solicitante as string,
+        id: selectedOrder?.id!
+      },
+      response: respota
+    })
+    notificacao({
+      message: hookRes.message,
+      type: (hookRes.ok)?'success':'error'
+    })
+  }
+
+  useEffect(() => {
+    if (selectedOrder) {
+      setStatus(selectedOrder.status);
+      setResposta('')
+    }
+  }, [selectedOrder])
 
   return (
     <Modal
@@ -36,9 +101,9 @@ export const ModalEncomendaAdmin: React.FC<{
     >
       {selectedOrder && (
         <div>
-          {selectedOrder.status !== 'CANCELADO' ? (
+          {status !== 'CANCELADO' ? (
             <Steps
-              current={getStatusStep(selectedOrder.status)}
+              current={getStatusStep(status)}
               size="small"
               style={{ marginBottom: 24 }}
               items={[
@@ -57,7 +122,6 @@ export const ModalEncomendaAdmin: React.FC<{
             />
           )}
 
-          {/* EncomendaResponseBody Info */}
           <Row gutter={[16, 16]}>
             <Col xs={24} md={12}>
               <Card size="small" title="Informações do Pedido">
@@ -104,7 +168,6 @@ export const ModalEncomendaAdmin: React.FC<{
             </Col>
           </Row>
 
-          {/* Reference Images */}
           {selectedOrder.imagemReferencia && selectedOrder.imagemReferencia.length > 0 && (
             <Card size="small" title="Imagens de Referência" style={{ marginTop: 16 }}>
               <Image.PreviewGroup>
@@ -124,7 +187,6 @@ export const ModalEncomendaAdmin: React.FC<{
             </Card>
           )}
 
-          {/* Reference URLs */}
           {selectedOrder.referencias && (
             <Card size="small" title="Links de Referência" style={{ marginTop: 16 }}>
               <a href={selectedOrder.referencias} target="_blank" rel="noopener noreferrer">
@@ -135,21 +197,20 @@ export const ModalEncomendaAdmin: React.FC<{
 
           <Divider />
 
-          {/* Status Actions */}
           <Card size="small" title="Alterar Status" style={{ marginBottom: 16 }}>
             <Space wrap>
               <Button
                 icon={<ClockCircleOutlined />}
-                // onClick={() => handleUpdateOrderStatus('EM ANÁLISE')}
-                disabled={selectedOrder.status === 'EM ANÁLISE'}
+                onClick={() => handleAtualizarStatusEncomenda('EM ANÁLISE', selectedOrder.id!)}
+                disabled={status === 'EM ANÁLISE'}
               >
                 Em Análise
               </Button>
               <Button
                 type="primary"
                 icon={<RocketOutlined />}
-                // onClick={() => handleUpdateOrderStatus('EM PRODUÇÃO')}
-                disabled={selectedOrder.status === 'EM PRODUÇÃO'}
+                onClick={() => handleAtualizarStatusEncomenda('EM PRODUÇÃO', selectedOrder.id!)}
+                disabled={status === 'EM PRODUÇÃO'}
                 style={{ background: '#722ED1', borderColor: '#722ED1' }}
               >
                 Em Produção
@@ -157,8 +218,8 @@ export const ModalEncomendaAdmin: React.FC<{
               <Button
                 type="primary"
                 icon={<CheckCircleOutlined />}
-                // onClick={() => handleUpdateOrderStatus('FINALIZADO')}
-                disabled={selectedOrder.status === 'FINALIZADO'}
+                onClick={() => handleAtualizarStatusEncomenda('FINALIZADO', selectedOrder.id!)}
+                disabled={status === 'FINALIZADO'}
                 style={{ background: '#52C41A', borderColor: '#52C41A' }}
               >
                 Finalizado
@@ -166,14 +227,14 @@ export const ModalEncomendaAdmin: React.FC<{
               <Popconfirm
                 title="Cancelar encomenda?"
                 description="Esta ação não pode ser desfeita."
-                // onConfirm={() => handleUpdateOrderStatus('CANCELADO')}
+                onConfirm={() => handleAtualizarStatusEncomenda('CANCELADO', selectedOrder.id!)}
                 okText="Sim, cancelar"
                 cancelText="Não"
               >
                 <Button
                   danger
                   icon={<StopOutlined />}
-                  disabled={selectedOrder.status === 'CANCELADO'}
+                  disabled={status === 'CANCELADO'}
                 >
                   Cancelar
                 </Button>
@@ -181,7 +242,6 @@ export const ModalEncomendaAdmin: React.FC<{
             </Space>
           </Card>
 
-          {/* Send Response */}
           <Card
             size="small"
             title={
@@ -203,8 +263,8 @@ export const ModalEncomendaAdmin: React.FC<{
                     size="small"
                     type="primary"
                     icon={isGeneratingResponse ? <LoadingOutlined /> : <ThunderboltOutlined />}
-                    // onClick={generateAIResponse}
-                    // disabled={isGeneratingResponse}
+                    onClick={handleGerarRespostaComIA}
+                    disabled={isGeneratingResponse}
                     style={{ background: colors.primary, borderColor: colors.primary }}
                   >
                     {isGeneratingResponse ? 'Gerando...' : 'Gerar com IA'}
@@ -214,14 +274,15 @@ export const ModalEncomendaAdmin: React.FC<{
               />
               <TextArea
                 rows={5}
-                // value={responseText}
-                // onChange={(e) => setResponseText(e.target.value)}
+                value={respota}
+                onChange={(e) => setResposta(e.target.value)}
                 placeholder="Digite sua mensagem para o cliente..."
               />
               <Button
                 type="primary"
                 icon={<SendOutlined />}
-                // onClick={handleSendResponse}
+                loading={isEnviandoResp}
+                onClick={handleResponderEncomenda}
                 style={{ background: colors.primary, borderColor: colors.primary }}
               >
                 Enviar Mensagem
