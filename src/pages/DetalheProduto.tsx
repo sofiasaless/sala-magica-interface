@@ -29,6 +29,7 @@ import { HttpStatusCode } from 'axios';
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import { useCategoriasProduto } from '../contexts/CategoriasProdutoContext';
 import { useItensCarrinho } from '../contexts/ItensCarrinhoContext';
 import { useProdutosFavoritos } from '../contexts/ProdutosFavoritosContext';
 import { useProdutosGeral } from '../hooks/useProdutosGeral';
@@ -36,7 +37,7 @@ import { useProdutosPaginados } from '../hooks/useProdutosPaginados';
 import { useNotificacao } from '../providers/NotificacaoProvider';
 import { colors } from '../theme/colors';
 import { produtoToItemCarrinho } from '../util/carrinho.util';
-import { useCategoriasProduto } from '../contexts/CategoriasProdutoContext';
+import { gerarLinkWhatsAppFazerEncomenda } from '../util/whatsapp.util';
 
 const { Title, Text, Paragraph } = Typography;
 const { useBreakpoint } = Grid;
@@ -287,8 +288,12 @@ export function DetalhesProduto() {
                     height: 48,
                     paddingInline: 24
                   }}
+                  onClick={() => {
+                    let link = gerarLinkWhatsAppFazerEncomenda(produto!)
+                    window.open(link, '_blank')
+                  }}
                 >
-                  WhatsApp
+                  Fazer pedido
                 </Button>
               </Space>
 
