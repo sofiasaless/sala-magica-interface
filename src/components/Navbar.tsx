@@ -4,6 +4,7 @@ import {
   HeartOutlined,
   HomeOutlined,
   InboxOutlined,
+  LogoutOutlined,
   MenuOutlined,
   SearchOutlined,
   SettingOutlined,
@@ -29,10 +30,10 @@ import { Outlet, useNavigate } from 'react-router-dom';
 import logo from '../assets/logo.png';
 import { useAuth } from '../contexts/AuthContext';
 import { useItensCarrinho } from '../contexts/ItensCarrinhoContext';
+import { useNotificacoes } from '../contexts/NotificacoesContext';
 import { useProdutosFavoritos } from '../contexts/ProdutosFavoritosContext';
 import { useDicionario } from '../hooks/useDicionario';
 import { SiteFooter } from './SiteFooter';
-import { useNotificacoes } from '../contexts/NotificacoesContext';
 
 const { Header, Content } = Layout;
 const { useBreakpoint } = Grid;
@@ -63,21 +64,23 @@ export const Navbar = () => {
   //   />
   // );
 
+  const handleSairDaConta = async () => {
+    await desconectarUsuario();
+    limparConext()
+    window.location.reload()
+  }
+
   const { isAdmin } = useAuth()
 
   const userMenu = (
     <Menu
       items={[
         { key: 'perfil', icon: <UserOutlined />, label: 'Meu Perfil', onClick: () => navigate('perfil') },
-        { key: 'orders', icon: <FormOutlined />, label: 'Minhas Encomendas', onClick: () => navigate(`perfil`, { state: { tab: "orders" }}) },
-        { key: 'admin-page', icon: <SettingOutlined />, style: { display: (isAdmin)?'':'none' }, label: 'Painel admin', onClick: () => navigate('admin') },
+        { key: 'orders', icon: <FormOutlined />, label: 'Minhas Encomendas', onClick: () => navigate(`perfil`, { state: { tab: "orders" } }) },
+        { key: 'admin-page', icon: <SettingOutlined />, style: { display: (isAdmin) ? '' : 'none' }, label: 'Painel admin', onClick: () => navigate('admin') },
         { type: 'divider' as const },
         {
-          key: 'logout', label: 'Sair', danger: true, onClick: async () => {
-            await desconectarUsuario();
-            limparConext()
-            window.location.reload()
-          }
+          key: 'logout', label: 'Sair', danger: true, onClick: () => handleSairDaConta()
         }
       ]}
     />
@@ -86,9 +89,10 @@ export const Navbar = () => {
   const navItems = [
     { key: '', icon: <HomeOutlined />, label: 'Início', onclick: () => setCurrentPage('') },
     { key: 'encomenda', icon: <StarOutlined />, label: 'Encomenda', onclick: () => setCurrentPage('encomenda') },
-    { key: 'favoritos', icon: <HeartOutlined />, label: `Favoritos (${produtosFavoritos?.length})`, onclick: () => setCurrentPage('favoritos') },
+    { key: 'favoritos', icon: <HeartOutlined />, label: `Favoritos (${produtosFavoritos?.length || 0})`, onclick: () => setCurrentPage('favoritos') },
     { key: 'carrinho', icon: <ShoppingCartOutlined />, label: `Carrinho (${carrinho.length})`, onclick: () => setCurrentPage('carrinho') },
     { key: 'perfil', icon: <UserOutlined />, label: 'Perfil', onclick: () => setCurrentPage('perfil') },
+    { key: 'sair', icon: <LogoutOutlined />, label: 'Sair da conta' },
   ];
 
   const { dicionario } = useDicionario()
@@ -280,6 +284,11 @@ export const Navbar = () => {
           items={navItems.map(item => ({
             ...item,
             onClick: () => {
+              if (item.key === 'sair') {
+                handleSairDaConta()
+                return;
+              }
+              setCurrentPage(item.key)
               navigate(item.key);
               setMobileMenuOpen(false);
             }

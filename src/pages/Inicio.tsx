@@ -1,6 +1,6 @@
 
-import { EditTwoTone, HeartTwoTone, ShoppingTwoTone, SmileTwoTone, StarFilled } from "@ant-design/icons";
-import { Button, Card, Col, Grid, Pagination, Row, Segmented, Typography } from 'antd';
+import { EditTwoTone, HeartTwoTone, LoadingOutlined, ShoppingTwoTone, SmileTwoTone, StarFilled } from "@ant-design/icons";
+import { Button, Card, Col, Grid, Pagination, Row, Segmented, Spin, Typography } from 'antd';
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { CardProduto } from "../components/CardProduto";
@@ -23,7 +23,7 @@ export const Inicio = () => {
 
   const { categoriasProdutos } = useCategoriasProduto()
 
-  const { produtosPaginados, paginar } = useProdutosPaginados()
+  const { produtosPaginados, paginar, carregandoPaginados } = useProdutosPaginados()
   const { contarTotalProdutos, totalProdutos } = useProdutosGeral()
 
   const [selectedCategory, setSelectedCategory] = useState('Todos');
@@ -115,11 +115,16 @@ export const Inicio = () => {
         </div>
 
         <Row gutter={[16, 16]}>
-          {produtosPaginados?.get('')?.produtos.map((produto) => (
-            <Col xs={24} sm={12} md={8} lg={6} key={produto.id}>
-              <CardProduto produto={produto} />
-            </Col>
-          ))}
+          {
+            (carregandoPaginados)?
+            <Spin indicator={<LoadingOutlined spin />} size="large" />
+            :
+            produtosPaginados?.get('')?.produtos.map((produto) => (
+              <Col xs={24} sm={12} md={8} lg={6} key={produto.id}>
+                <CardProduto produto={produto} />
+              </Col>
+            ))
+          }
         </Row>
 
         <div style={{ textAlign: 'center', marginTop: 32 }}>

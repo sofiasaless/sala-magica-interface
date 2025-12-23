@@ -17,6 +17,7 @@ import AdminDashboard from "./pages/AdminDashboard";
 import { NotificacoesProvider } from "./contexts/NotificacoesContext";
 import { EventoAlteracoesProvider } from "./contexts/EventoAlteracoesContext";
 import { AdminGuard } from "./guard/AdminGuard";
+import ScrollToTop from "./components/ScrollToTop";
 
 export default function Rotas() {
   return (
@@ -27,6 +28,7 @@ export default function Rotas() {
             <ProdutosFavoritosProvider>
               <ItensPedidoProvider>
                 <BrowserRouter>
+                  <ScrollToTop />
                   <Routes>
                     <Route path="/" element={<Navbar />} >
 
