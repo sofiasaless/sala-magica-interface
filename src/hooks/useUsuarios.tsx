@@ -1,4 +1,6 @@
+import { useState } from "react";
 import { auth } from "../client/firebase";
+import { AuthService } from "../service/auth.service";
 import { UsuarioService } from "../service/usuario.service";
 import type { ContadorQuantidade } from "../types/contador.type";
 import { errorHookResponse, successHookResponseByAxios } from "../types/hookResponse.type";
@@ -43,10 +45,25 @@ export function useUsuarios() {
     }
   }
 
+  const [isCadastrando, setIsCadastrando] = useState<boolean>(false)
+  async function cadastrarUsuario(body: User) {
+    try {
+      setIsCadastrando(true)
+      const result = await AuthService.cadastrarUsuario(body);
+      return successHookResponseByAxios(result, 'ao cadastrar conta')
+    } catch (error) {
+      return errorHookResponse(error);
+    } finally {
+      setIsCadastrando(false)
+    }
+  }
+
   return {
     contarUsuarios,
     encontrarUsuarioPorId,
     excluirConta,
-    atualizarUsuario
+    atualizarUsuario,
+    cadastrarUsuario,
+    isCadastrando
   }
 }
