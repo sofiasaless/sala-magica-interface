@@ -1,73 +1,110 @@
-# React + TypeScript + Vite
+# Sala Mágica
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A **Sala Mágica** é uma plataforma web desenvolvida como projeto freelancer para a divulgação e gestão de produtos artesanais voltados ao ambiente educacional (jardim de infância).  
+O projeto passou por uma **refatoração completa**, onde apliquei boas práticas de arquitetura, separação de responsabilidades e tudo o que evoluí tecnicamente ao longo de 2025.
 
-Currently, two official plugins are available:
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## 🎯 Objetivo do Projeto
 
-## React Compiler
+Criar uma plataforma intuitiva e funcional para:
+- Divulgar produtos artesanais
+- Gerenciar encomendas personalizadas
+- Facilitar o contato entre cliente e administradora
+- Oferecer uma área administrativa segura e eficiente
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## 🔁 Antes x Depois (Refatoração)
 
-## Expanding the ESLint configuration
+A versão original do projeto Sala Mágica foi desenvolvida no início do ano de 2025 para consolidar minhas habilidades em React.js, mas ao longo dos meses fui evoluindo meus conhecimentos e percebi que o projeto precisava de uma reestruturação completa, assim refatorei tudo para colocar meus conhecimentos em prática e oferecer a cliente uma plataforma mais segura.
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+**Antes**
+- Código altamente acoplado
+- Front-end e back-end compartilhando responsabilidades no mesmo código
+- Dificuldade de manutenção e evolução
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+**Depois**
+- API dedicada e desacoplada
+- Front-end focado apenas na interface
+- Melhor organização, escalabilidade e segurança
+- Código mais limpo e reutilizável
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+## 🚀 Funcionalidades
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+### 👥 Usuários
+- Cadastro e autenticação com Firebase Authentication
+- Controle de permissões (user / admin)
+- Atualização de perfil
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+### 🛍 Produtos
+- Listagem pública de produtos
+- Paginação, filtros e ordenação (🌟Nova funcionalidade)
+- Dicionário de pesquisa para produtos (🌟Nova funcionalidade)
+- Favoritar produtos
+- Carrinho de produtos (🌟Nova funcionalidade)
+- Compartilhamento e finalização de pedidos via WhatsApp
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+### 📦 Encomendas Personalizadas
+- Envio de encomendas pelo site
+- Sugestão de descrição com **IA** (🌟Nova funcionalidade)
+- Acompanhamento do status da encomenda
+- Comunicação facilitada com a administradora
+- Sugestão de descrição do produto com **IA** (🌟Nova funcionalidade)
+
+### 🔔 Notificações
+- Sistema de notificações baseado em eventos (🌟Nova funcionalidade)
+- Notificações por criação de produtos, atualizações nas encomendas
+- Controle de leitura por usuário
+
+### 🛠 Administração
+- Área administrativa protegida
+- Gerenciamento de produtos e categorias
+- Acompanhamento e resposta de encomendas
+- Fluxo completo do pedido (novo → análise → produção → finalizado) (🌟Nova funcionalidade)
+
+## Arquitetura
+
+- Aplicação de componentes da biblioteca Ant Design (🌟Novo)
+- Separação clara entre **Front-end** e **Back-end**
+- API REST construída com Express
+- Uso de **Event Bus** para desacoplamento de ações (ex: notificações)
+- Middlewares para autenticação e autorização
+- Integração com serviços externos (Firebase, IA, WhatsApp)
+
+## Tecnologias Utilizadas
+
+### Front-end
+- React
+- TanStack
+- TypeScript
+- Ant Design
+- Axios
+
+### Back-end
+- Node.js
+- Express
+- TypeScript
+- Firebase Authentication
+- Cloud Firestore
+
+## 🖼 Demonstração
+
+#### Página inicial
+![](./public/images/inicio.png)
+
+#### Fazer encomenda com sugestão por IA
+![](./public/images/encomendar.png)
+
+#### Área administrativa
+![](./public/images/painel%20admin.png)
+
+#### Área administrativa (Responder encomendas)
+![](./public/images/painel%20admin%20encomendas%20(modal).png)
+
+#### Perfil do usuário
+![](./public/images/perfil.png)
+
+#### Perfil do usuário (Visualizando pedido de encomenda)
+![](./public/images/detalhes%20encomenda.png)
+
+#### Carrinho
+![](./public/images/carrinho.png)
